@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/wang_matrix"
+
+maze = WangMatrix::MazeFileParser.new.perform(ARGV.first)
+WangMatrix::Solver.new(maze: maze).perform
+
+# vim: set ft=ruby
