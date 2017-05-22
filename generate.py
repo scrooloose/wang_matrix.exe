@@ -158,7 +158,7 @@ class Canvas(object):
             except IndexError:
                 pass
 
-    def __unicode__(self):
+    def __str__(self):
         return "\n".join("".join(row) for row in self.grid)
 
 
@@ -211,7 +211,7 @@ def random_maze(width, height, shape_count):
         shape = random.choice(SHAPES)
         o = shape(width, height)
         canvas.draw(o)
-    print(unicode(canvas))
+    print(str(canvas))
 
 
 def help():
