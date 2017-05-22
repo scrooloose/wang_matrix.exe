@@ -10,6 +10,10 @@ module WangMatrix
       [self.x, self.y] == [p.x, p.y]
     end
 
+    def to_s
+      inspect
+    end
+
     def inspect
       "(#{x},#{y})"
     end

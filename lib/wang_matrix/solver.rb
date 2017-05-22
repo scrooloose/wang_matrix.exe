@@ -2,9 +2,10 @@ module WangMatrix
   class Solver
     attr_reader :maze, :traversed
 
-    def initialize(maze:)
+    def initialize(maze:, renderer: Renderer::Ncurses.new)
       @maze = maze
       @traversed = []
+      @renderer = renderer
     end
 
     def perform
@@ -16,9 +17,9 @@ module WangMatrix
 
     private
 
-      def perform_for_real(current: maze.maze_start, path: [])
-        sleep(0.01)
+      attr_reader :renderer
 
+      def perform_for_real(current: maze.maze_start, path: [])
         renderer.perform(grid: maze.to_grid, path: path + [current])
 
         if maze.finish?(current)
@@ -33,10 +34,6 @@ module WangMatrix
             return result
           end
         end
-      end
-
-      def renderer
-        @renderer ||= Renderer.new
       end
 
       def adjacent(pos)
