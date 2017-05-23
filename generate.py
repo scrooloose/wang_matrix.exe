@@ -7,8 +7,8 @@ import sys
 import random
 
 
-GAP = "-"
-WALL = "+"
+GAP = " "
+WALL = "#"
 
 
 def oa(h, r):
@@ -164,36 +164,36 @@ class Canvas(object):
 
 def random_square(width, height):
     return Square(
-        x=random.randint(0, width),
-        y=random.randint(0, height),
-        width=random.randint(10, width/2),
-        height=random.randint(10, height/2),
+        x=random.randint(0, width-1),
+        y=random.randint(0, height-1),
+        width=random.randint(0, width),
+        height=random.randint(0, height),
     )
 
 
 def random_triangle(width, height):
     return Triangle(
-        x=random.randint(0, width),
-        y=random.randint(0, height),
-        length=random.randint(10, min(width, height)/2),
+        x=random.randint(0, width-1),
+        y=random.randint(0, height-1),
+        length=random.randint(0, min(width, height)),
         angle=random.choice(list(a for a in range(0, 360, 45) if a % 90)),
     )
 
 
 def random_vector(width, height):
     return Vector(
-        x=random.randint(0, width),
-        y=random.randint(0, height),
-        length=random.randint(10, min(width, height)/2),
+        x=random.randint(0, width-1),
+        y=random.randint(0, height-1),
+        length=random.randint(0, min(width, height)),
         angle=random.choice(range(0, 360, 10)),
     )
 
 
 def random_circle(width, height):
     return Circle(
-        x=random.randint(0, width),
-        y=random.randint(0, height),
-        radius=random.randint(10, min(width, height)/2),
+        x=random.randint(0, width-1),
+        y=random.randint(0, height-1),
+        radius=random.randint(0, min(width, height)),
     )
 
 
@@ -211,6 +211,17 @@ def random_maze(width, height, shape_count):
         shape = random.choice(SHAPES)
         o = shape(width, height)
         canvas.draw(o)
+
+    edges = list(itertools.chain(
+        ((x, 0) for x in range(width)),
+        ((x, height-1) for x in range(width)),
+        ((0, y) for y in range(height)),
+        ((width-1, y) for y in range(height)),
+    ))
+    sx, sy = random.choice(edges)
+    ex, ey = random.choice(edges)
+    canvas.grid[sy][sx] = "s"
+    canvas.grid[ey][ex] = "e"
     print(str(canvas))
 
 
