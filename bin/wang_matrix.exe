@@ -3,9 +3,11 @@
 require_relative "../lib/wang_matrix"
 
 maze = WangMatrix::MazeFileParser.new.perform(ARGV.first)
-WangMatrix::Solver.new(
+solution= WangMatrix::Solver.new(
   maze: maze,
-  renderer: WangMatrix::Renderer::NcursesRenderer.new
+  renderer: WangMatrix::Renderer::NcursesRenderer.new(sleep_time: 0.01)
 ).perform
+
+puts solution.map(&:to_s).join(", ")
 
 # vim: set ft=ruby

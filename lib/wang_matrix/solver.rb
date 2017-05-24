@@ -11,6 +11,7 @@ module WangMatrix
     def perform
       solution = perform_for_real
       renderer.present_solution(grid: maze.to_grid, path: solution)
+      solution
     ensure
       renderer.reset_screen
     end
