@@ -19,5 +19,5 @@ Random Maze
 You can have Wang Matrix solve a random maze as follows:
 
 ```
-./bin/wang_matrix.exe <(python generate.py 100 40 5)
+./bin/wang_matrix.exe <(python generate.py 80 40 30)
 ```
