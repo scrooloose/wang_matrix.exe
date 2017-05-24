@@ -1,7 +1,9 @@
 module WangMatrix
   class MazeFileParser
     def perform(fname)
-      grid = File.readlines(fname).map(&:strip).map {|l| l.split(//)}
+      grid = File.readlines(fname).
+        map {|l| l.sub("\n", '')}.
+        map {|l| l.split(//)}
 
       Maze.new(
         grid: grid,

@@ -17,5 +17,21 @@ module WangMatrix
     def inspect
       "(#{x},#{y})"
     end
+
+    def up
+      Pos.new(x, y-1)
+    end
+
+    def down
+      Pos.new(x, y+1)
+    end
+
+    def left
+      Pos.new(x-1, y)
+    end
+
+    def right
+      Pos.new(x+1, y)
+    end
   end
 end

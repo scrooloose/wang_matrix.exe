@@ -23,10 +23,10 @@ module WangMatrix
     def adjacent(pos)
       rv = []
 
-      rv << Pos.new(pos.x,   pos.y-1)
-      rv << Pos.new(pos.x,   pos.y+1)
-      rv << Pos.new(pos.x-1, pos.y)
-      rv << Pos.new(pos.x+1, pos.y)
+      rv << pos.up unless pos.y <= 0
+      rv << pos.down unless pos.y >= height-1
+      rv << pos.left unless pos.x <= 0
+      rv << pos.right unless pos.x >= width-1
 
       rv.select {|p| traversable?(p) }
     end
@@ -38,5 +38,13 @@ module WangMatrix
 
     private
       attr_reader :grid
+
+      def height
+        @height ||= grid.size
+      end
+
+      def width
+        @width ||= grid.first.size
+      end
   end
 end
