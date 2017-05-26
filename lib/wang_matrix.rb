@@ -10,4 +10,4 @@ require_relative "wang_matrix/renderer/ncurses_renderer"
 require_relative "wang_matrix/solver"
 require_relative "wang_matrix/engine"
 require_relative "wang_matrix/player"
-
+require_relative "wang_matrix/ui"
