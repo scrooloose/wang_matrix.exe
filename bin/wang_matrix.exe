@@ -3,11 +3,17 @@
 require_relative "../lib/wang_matrix"
 
 maze = WangMatrix::MazeFileParser.new.perform(ARGV.first)
-solution= WangMatrix::Solver.new(
-  maze: maze,
-  renderer: WangMatrix::Renderer::NcursesRenderer.new(sleep_time: 0.01)
-).perform
 
-puts solution.map(&:to_s).join(", ")
+#solution= WangMatrix::Solver.new(
+#  maze: maze,
+#  renderer: WangMatrix::Renderer::NcursesRenderer.new(sleep_time: 0.01)
+#).perform
+#
+#puts solution.map(&:to_s).join(", ")
+
+WangMatrix::Engine.new(
+  maze: maze,
+  player: WangMatrix::Player.new(pos: maze.maze_start.clone, maze: maze)
+).main_loop
 
 # vim: set ft=ruby
