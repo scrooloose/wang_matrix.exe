@@ -1,4 +1,5 @@
 import sys
+import time
 from collections import namedtuple
 
 Point = namedtuple("Point", "x y value")
@@ -31,24 +32,16 @@ class Grid(object):
             if p.value != "+"
         )
 
-    def __str__(self):
-        width = max(len(row) for row in self.grid)
-        gutter_width = len(str(len(self.grid)))
-        header = " " * gutter_width + " " + "".join(ticks(width, 5))
-        return "\n".join(
-            [header] +
-            list(
-                str(row_number if row_number % 5 == 0 else "").rjust(gutter_width) +
-                " " +
-                "".join(
-                    point.value for point in row
-                ) +
-                " " +
-                str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
-                for row_number, row in enumerate(self.grid, 1)
-            ) +
-            [header]
-        )
+    def height(self):
+        return len(self.grid)
+
+    def width(self):
+        return max(len(row) for row in self.grid)
+
+    def points(self):
+        for row in self.grid:
+            for point in row:
+                yield point
 
 
 def ticks(width, every):
@@ -60,7 +53,7 @@ def ticks(width, every):
             yield c
 
 
-def parse():
+def parse(f):
     start = None
     end = None
     grid = tuple(
@@ -68,7 +61,7 @@ def parse():
             Point(column_number, row_number, value)
             for column_number, value in enumerate(line.rstrip("\n"))
         )
-        for row_number, line in enumerate(sys.stdin)
+        for row_number, line in enumerate(f)
     )
 
     for row in grid:
@@ -80,28 +73,79 @@ def parse():
     return Grid(grid), start, end
 
 
-def solve(grid, start, end):
-    visited_points = set()
-    current_points = set([start])
-    while current_points and end not in current_points:
-        visited_points.update(current_points)
-        next_points = set()
-        for point in current_points:
-            new_points = grid.neighbouring_spaces(point)
-            next_points.update(new_points)
-        current_points = next_points - visited_points
+def point_char(point, char):
+    return Point(point.x, point.y, char)
 
-    return end in current_points
+
+class Solver(object):
+    def __init__(self, grid, start, end):
+        self.grid = grid
+        self.start = start
+        self.end = end
+        self.current = set([start])
+        self.visited = set()
+
+    def iter_solve(self):
+        while self.current:
+            if self.end in self.current:
+                break
+            else:
+                yield
+            self.visited.update(self.current)
+            next_points = set()
+            for point in self.current:
+                new_points = self.grid.neighbouring_spaces(point)
+                next_points.update(new_points)
+            self.current = next_points - self.visited
+
+
+class Canvas(object):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        row = [""] * width
+        self.grid = [row[:] for _ in range(height)]
+
+    def draw(self, points):
+        for point in points:
+            try:
+                self.grid[point.y][point.x] = point.value
+            except IndexError:
+                pass
+
+    def __str__(self):
+        width = self.width
+        gutter_width = len(str(self.height))
+        header = " " * gutter_width + " " + "".join(ticks(width, 5))
+        return "\n".join(
+            [header] +
+            list(
+                str(row_number if row_number % 5 == 0 else "").rjust(gutter_width) +
+                " " +
+                "".join(
+                    value for value in row
+                ) +
+                " " +
+                str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
+                for row_number, row in enumerate(self.grid, 1)
+            ) +
+            [header]
+        )
 
 
 def main():
-    grid, start, end = parse()
+    grid, start, end = parse(open(sys.argv[1]))
+    solver = Solver(grid, start, end)
+    for solution in solver.iter_solve():
+        print("\x1B[2J")
+        c = Canvas(grid.width(), grid.height())
+        c.draw(grid.points())
+        c.draw(point_char(p, "o") for p in solver.current)
+        print(str(c))
+        time.sleep(0.1)
     print("START:", start)
     print("END:", end)
-    solution = solve(grid, start, end)
-    print(str(grid))
-    print("SOLUTION:", solution)
-
+    print("SOLUTION:", solver.current)
 
 if __name__ == "__main__":
     raise SystemExit(main())
