@@ -33,7 +33,7 @@ class Grid(object):
 
     def __str__(self):
         width = max(len(row) for row in self.grid)
-        gutter_width = len(str(len(self.grid)-1))
+        gutter_width = len(str(len(self.grid)))
         header = " " * gutter_width + " " + "".join(ticks(width, 5))
         return "\n".join(
             [header] +
@@ -66,7 +66,7 @@ def parse():
     grid = tuple(
         tuple(
             Point(column_number, row_number, value)
-            for column_number, value in enumerate(line.rstrip())
+            for column_number, value in enumerate(line.rstrip("\n"))
         )
         for row_number, line in enumerate(sys.stdin)
     )
