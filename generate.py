@@ -7,7 +7,7 @@ import sys
 import random
 
 
-GAP = " "
+GAP = "-"
 WALL = "#"
 
 
