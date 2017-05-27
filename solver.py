@@ -142,13 +142,17 @@ class Canvas(object):
         return "\n".join(
             [header] +
             list(
-                str(row_number if row_number % 5 == 0 else "").rjust(gutter_width) +
+                str(row_number if row_number % 5 == 0 else "").rjust(
+                    gutter_width
+                ) +
                 " " +
                 "".join(
                     value for value in row
                 ) +
                 " " +
-                str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
+                str(row_number if row_number % 5 == 0 else "").rjust(
+                    gutter_width
+                )
                 for row_number, row in enumerate(self.grid, 1)
             ) +
             [header]
@@ -156,6 +160,8 @@ class Canvas(object):
 
 RED = "\x1B[31m"
 RESET = "\x1B[39;49m"
+CLEAR = "\x1B[2J"
+
 
 def main():
     grid, start, end = parse(open(sys.argv[1]))
@@ -167,7 +173,7 @@ def main():
         c = Canvas(width, height)
         c.draw(grid.pixels())
         c.draw(Pixel(p, "o") for p in solver.current)
-        c.draw(Pixel(p, "~") for p in solver.visited)
+        c.draw(Pixel(p, RED + "~" + RESET) for p in solver.visited)
         c.draw([Pixel(start, "S")])
         c.draw([Pixel(end, "E")])
         print(str(c))
@@ -177,7 +183,7 @@ def main():
     if solution is None:
         print("No solution")
     else:
-        print("\x1B[2J")
+        print(CLEAR)
         c = Canvas(width, height)
         c.draw(grid.pixels())
         c.draw(Pixel(p, RED + "o" + RESET) for p in solution)
