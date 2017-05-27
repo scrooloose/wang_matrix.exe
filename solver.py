@@ -2,7 +2,21 @@ import sys
 import time
 from collections import namedtuple
 
-Point = namedtuple("Point", "x y value")
+Point = namedtuple("Point", "x y")
+
+
+class Pixel(object):
+    def __init__(self, point, value):
+        self.point = point
+        self.value = value
+
+    @property
+    def x(self):
+        return self.point.x
+
+    @property
+    def y(self):
+        return self.point.y
 
 
 class Grid(object):
@@ -47,7 +61,7 @@ class Grid(object):
     def width(self):
         return max(len(row) for row in self.grid)
 
-    def points(self):
+    def pixels(self):
         for row in self.grid:
             for point in row:
                 yield point
@@ -67,23 +81,19 @@ def parse(f):
     end = None
     grid = tuple(
         tuple(
-            Point(column_number, row_number, value)
+            Pixel(Point(column_number, row_number), value)
             for column_number, value in enumerate(line.rstrip("\n"))
         )
         for row_number, line in enumerate(f)
     )
 
     for row in grid:
-        for point in row:
-            if point.value == "s":
-                start = point
-            if point.value == "e":
-                end = point
+        for pixel in row:
+            if pixel.value == "s":
+                start = pixel.point
+            if pixel.value == "e":
+                end = pixel.point
     return Grid(grid), start, end
-
-
-def point_char(point, char):
-    return Point(point.x, point.y, char)
 
 
 class Solver(object):
@@ -91,7 +101,7 @@ class Solver(object):
         self.grid = grid
         self.start = start
         self.end = end
-        self.current = set([start])
+        self.current = {start: []}
         self.visited = set()
 
     def iter_solve(self):
@@ -100,12 +110,15 @@ class Solver(object):
                 break
             else:
                 yield
-            self.visited.update(self.current)
-            next_points = set()
-            for point in self.current:
-                new_points = self.grid.neighbouring_spaces(point)
-                next_points.update(new_points)
-            self.current = next_points - self.visited
+            self.visited.update(self.current.keys())
+            current_items = self.current.items()
+            self.current = {}
+            for point, tail in current_items:
+                for next_pixel in self.grid.neighbouring_spaces(point):
+                    next_point = next_pixel.point
+                    if next_point in self.visited:
+                        continue
+                    self.current[next_point] = tail + [point]
 
 
 class Canvas(object):
@@ -141,19 +154,37 @@ class Canvas(object):
             [header]
         )
 
+RED = "\x1B[31m"
+RESET = "\x1B[39;49m"
 
 def main():
     grid, start, end = parse(open(sys.argv[1]))
+    width = grid.width()
+    height = grid.height()
     solver = Solver(grid, start, end)
-    for solution in solver.iter_solve():
+    for _ in solver.iter_solve():
         print("\x1B[2J")
-        c = Canvas(grid.width(), grid.height())
-        c.draw(grid.points())
-        c.draw(point_char(p, "o") for p in solver.current)
-        c.draw(point_char(p, "~") for p in solver.visited)
-        c.draw([start])
+        c = Canvas(width, height)
+        c.draw(grid.pixels())
+        c.draw(Pixel(p, "o") for p in solver.current)
+        c.draw(Pixel(p, "~") for p in solver.visited)
+        c.draw([Pixel(start, "S")])
+        c.draw([Pixel(end, "E")])
         print(str(c))
         time.sleep(0.1)
+
+    solution = solver.current.get(end)
+    if solution is None:
+        print("No solution")
+    else:
+        print("\x1B[2J")
+        c = Canvas(width, height)
+        c.draw(grid.pixels())
+        c.draw(Pixel(p, RED + "o" + RESET) for p in solution)
+        c.draw([Pixel(start, "S")])
+        c.draw([Pixel(end, "E")])
+        print(str(c))
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
