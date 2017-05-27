@@ -10,8 +10,17 @@ class Grid(object):
         self.grid = grid
 
     def get(self, x, y):
-        if x < 0 or y < 0:
-            return None
+        width = self.width()
+        height = self.height()
+        if x < 0:
+            x = x + width
+        if x >= width:
+            x = x - width
+        if y < 0:
+            y = y + height
+        if y >= height:
+            y = y - height
+
         try:
             return self.grid[y][x]
         except IndexError:
@@ -141,11 +150,10 @@ def main():
         c = Canvas(grid.width(), grid.height())
         c.draw(grid.points())
         c.draw(point_char(p, "o") for p in solver.current)
+        c.draw(point_char(p, "~") for p in solver.visited)
+        c.draw([start])
         print(str(c))
         time.sleep(0.1)
-    print("START:", start)
-    print("END:", end)
-    print("SOLUTION:", solver.current)
 
 if __name__ == "__main__":
     raise SystemExit(main())
