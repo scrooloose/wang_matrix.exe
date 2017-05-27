@@ -28,20 +28,36 @@ class Grid(object):
     def neighbouring_spaces(self, point):
         return list(
             p for p in self.neighbouring_points(point)
-            if p.value != "#"
+            if p.value != "+"
         )
 
     def __str__(self):
         width = max(len(row) for row in self.grid)
-        spacer = len(str(len(self.grid)-1))
-        header = "".join((" " if ((i+1) % 5) else "*") for i in range(width))
-        return (
-            " " * spacer + " " + header + "\n" +
-            "\n".join(
-                str(row_number).rjust(spacer) + " " + "".join(point.value for point in row)
-                for row_number, row in enumerate(self.grid)
-            )
+        gutter_width = len(str(len(self.grid)-1))
+        header = " " * gutter_width + " " + "".join(ticks(width, 5))
+        return "\n".join(
+            [header] +
+            list(
+                str(row_number if row_number % 5 == 0 else "").rjust(gutter_width) +
+                " " +
+                "".join(
+                    point.value for point in row
+                ) +
+                " " +
+                str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
+                for row_number, row in enumerate(self.grid, 1)
+            ) +
+            [header]
         )
+
+
+def ticks(width, every):
+    for c in " " * (every - 1):
+        yield c
+    for i in (i for i in range(1, width) if (i % every) == 0):
+        buffer = str(i).ljust(every)
+        for c in buffer:
+            yield c
 
 
 def parse():

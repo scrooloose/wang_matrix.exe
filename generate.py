@@ -8,7 +8,7 @@ import random
 
 
 GAP = "-"
-WALL = "#"
+WALL = "+"
 
 
 def oa(h, r):
