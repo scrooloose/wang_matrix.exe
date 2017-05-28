@@ -13,7 +13,10 @@ module WangMatrix
     end
 
     def traversable?(pos)
-      ['e', ' '].include?(at(pos))
+      return false if pos.x >= width || pos.x < 0
+      return false if pos.y >= height || pos.y < 0
+      return false unless ['e', ' '].include?(at(pos))
+      true
     end
 
     def finish?(pos)
