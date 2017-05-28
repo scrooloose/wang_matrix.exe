@@ -16,4 +16,4 @@ Maze files must consist of walls `#`, a starting point `s` and an end point `e`.
 Maze Generator
 -----------------
 
-There's a [Maze generator written in Python](py/README.org).
+There's a [Maze generator written in Python](py/README.md).
