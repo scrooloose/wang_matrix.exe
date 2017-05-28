@@ -1,19 +1,35 @@
 #!/usr/bin/env ruby
 
+usage = <<EOS
+
+Find and show solution for maze
+  #{__FILE__} -s [maze-file]
+
+Manually solve maze
+  #{__FILE__} [maze-file]
+
+EOS
+
+if ARGV.none? || ARGV.first == "-h"
+  puts usage
+  exit
+end
+
 require_relative "../lib/wang_matrix"
+maze = WangMatrix::MazeFileParser.new.perform(ARGV.last)
 
-maze = WangMatrix::MazeFileParser.new.perform(ARGV.first)
+if ARGV.first == "-s"
+  solution = WangMatrix::Solver.new(
+    maze: maze,
+    renderer: WangMatrix::Renderer::NcursesRenderer.new(sleep_time: 0.05)
+  ).perform
+  puts solution.map(&:to_s).join(", ")
 
-solution = WangMatrix::Solver.new(
-  maze: maze,
-  renderer: WangMatrix::Renderer::NcursesRenderer.new(sleep_time: 0.05)
-  #renderer: WangMatrix::Renderer::Null.new
-).perform
-puts solution.map(&:to_s).join(", ")
-
-#WangMatrix::Engine.new(
-  #maze: maze,
-  #player: WangMatrix::Player.new(pos: maze.maze_start.clone, maze: maze)
-#).main_loop
+else
+  WangMatrix::Engine.new(
+    maze: maze,
+    player: WangMatrix::Player.new(pos: maze.maze_start.clone, maze: maze)
+  ).main_loop
+end
 
 # vim: set ft=ruby
