@@ -65,7 +65,7 @@ class Grid(object):
     def neighbouring_spaces(self, point):
         return list(
             p for p in self.neighbouring_points(point)
-            if p.value != "+"
+            if p.value != "#"
         )
 
     def height(self):
@@ -187,8 +187,8 @@ def main():
         c.draw(grid.pixels())
         c.draw(Pixel(p, "o") for p in solver.current)
         c.draw(Pixel(p, RED + "~" + RESET) for p in solver.visited)
-        c.draw([Pixel(start, "S")])
-        c.draw([Pixel(end, "E")])
+        c.draw([Pixel(start, "s")])
+        c.draw([Pixel(end, "e")])
         print(str(c))
         time.sleep(0.1)
 
@@ -200,8 +200,8 @@ def main():
         c = Canvas(width, height)
         c.draw(grid.pixels())
         c.draw(Pixel(p, RED + "o" + RESET) for p in solution)
-        c.draw([Pixel(start, "S")])
-        c.draw([Pixel(end, "E")])
+        c.draw([Pixel(start, "s")])
+        c.draw([Pixel(end, "e")])
         print(str(c))
 
 
