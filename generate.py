@@ -6,10 +6,8 @@ import math
 import sys
 import random
 
-
 CLOSED = "#"
 OPEN = " "
-
 
 def oa(h, r):
     return int(math.sin(r) * h), int(math.cos(r) * h)
