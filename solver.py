@@ -169,7 +169,7 @@ def main():
     height = grid.height()
     solver = Solver(grid, start, end)
     for _ in solver.iter_solve():
-        print("\x1B[2J")
+        print(CLEAR)
         c = Canvas(width, height)
         c.draw(grid.pixels())
         c.draw(Pixel(p, "o") for p in solver.current)
