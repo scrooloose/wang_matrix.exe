@@ -6,10 +6,8 @@ import math
 import sys
 import random
 
-
-GAP = "+"
-WALL = "-"
-
+CLOSED = "#"
+OPEN = " "
 
 def oa(h, r):
     return int(math.sin(r) * h), int(math.cos(r) * h)
@@ -145,13 +143,13 @@ class Circle(object):
 
 
 class Canvas(object):
-    def __init__(self, width, height, character=GAP):
+    def __init__(self, width, height, character=CLOSED):
         self.width = width
         self.height = height
         row = [character] * width
         self.grid = [row[:] for _ in range(height)]
 
-    def draw(self, obj, character=WALL):
+    def draw(self, obj, character=OPEN):
         for x, y in obj.outline():
             try:
                 self.grid[y][x] = character
@@ -218,7 +216,7 @@ def random_maze(width, height, shape_count):
         list((x, height-1) for x in range(width)) +
         list((0, y) for y in range(height)) +
         list((width-1, y) for y in range(height))
-        if canvas.grid[y][x] != GAP
+        if canvas.grid[y][x] == OPEN
     )
     sx, sy = random.choice(edges)
     ex, ey = random.choice(edges)
