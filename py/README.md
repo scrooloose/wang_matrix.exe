@@ -1,4 +1,4 @@
-* Install
+# Install
 
 ```
 pip install --user virtualenv
@@ -6,7 +6,7 @@ virtualenv ~/.local/venvs/wangmatrix
 ~/.local/venvs/wangmatrix/bin/pip install --editable .
 ```
 
-* Run
+# Run
 
 ```
 source ~/.local/venvs/wangmatrix/bin/activate
