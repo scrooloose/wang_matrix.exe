@@ -241,7 +241,3 @@ def main():
         return 1
 
     random_maze(width, height, shape_count)
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
