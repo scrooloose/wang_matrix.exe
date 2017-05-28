@@ -203,7 +203,3 @@ def main():
         c.draw([Pixel(start, "s")])
         c.draw([Pixel(end, "e")])
         print(str(c))
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
