@@ -2,6 +2,9 @@ module WangMatrix
   class Maze
     attr_reader :maze_start, :maze_end
 
+    extend Forwardable
+    def_delegators :@grid, :at, :width, :height
+
     def initialize(grid:, maze_start:, maze_end:)
       @grid = grid
       @maze_start = maze_start
@@ -9,7 +12,7 @@ module WangMatrix
     end
 
     def at(pos)
-      grid[pos.y][pos.x]
+      grid.at(pos)
     end
 
     def traversable?(pos)
@@ -35,19 +38,10 @@ module WangMatrix
     end
 
     def to_grid
-      #deep clone hack
-      Marshal.load(Marshal::dump(grid))
+      grid.clone
     end
 
     private
       attr_reader :grid
-
-      def height
-        @height ||= grid.size
-      end
-
-      def width
-        @width ||= grid.first.size
-      end
   end
 end

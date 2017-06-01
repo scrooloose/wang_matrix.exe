@@ -12,7 +12,7 @@ module WangMatrix
         screen.clear
 
         screen.attrset(Ncurses::COLOR_PAIR(1))
-        screen.mvaddstr(0,0, grid.map(&:join).join("\n") + "\n\n")
+        screen.mvaddstr(0,0, grid.to_s + "\n\n")
 
         screen.attrset(Ncurses::COLOR_PAIR(2))
         path.each do |pos|
@@ -27,7 +27,7 @@ module WangMatrix
         perform(grid: grid, path: path)
 
         screen.attrset(Ncurses::COLOR_PAIR(1))
-        screen.mvaddstr(grid.size + 1, 0, "Press any key to exit")
+        screen.mvaddstr(grid.height + 1, 0, "Press any key to exit")
         screen.refresh
 
         Ncurses.getch

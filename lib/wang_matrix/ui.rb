@@ -30,7 +30,7 @@ module WangMatrix
       grid = maze.to_grid
       screen.clear
       screen.attrset(Ncurses::COLOR_PAIR(1))
-      screen.mvaddstr(0,0, grid.map(&:join).join("\n") + "\n\n")
+      screen.mvaddstr(0,0, grid.to_s + "\n\n")
 
       screen.attrset(Ncurses::COLOR_PAIR(2))
       screen.mvaddstr(player.y, player.x, "@")

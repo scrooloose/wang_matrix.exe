@@ -1,5 +1,6 @@
 require 'ncurses'
 require 'forwardable'
+require 'ostruct'
 
 require_relative "wang_matrix/maze"
 require_relative "wang_matrix/maze_file_parser"
@@ -11,3 +12,5 @@ require_relative "wang_matrix/solver"
 require_relative "wang_matrix/engine"
 require_relative "wang_matrix/player"
 require_relative "wang_matrix/ui"
+require_relative "wang_matrix/grid"
+require_relative "wang_matrix/maze_generator"
