@@ -18,12 +18,11 @@ module WangMatrix
     def traversable?(pos)
       return false if pos.x >= width || pos.x < 0
       return false if pos.y >= height || pos.y < 0
-      return false unless ['e', ' '].include?(at(pos))
-      true
+      return at(pos).traversable?
     end
 
     def finish?(pos)
-      at(pos) == "e"
+      at(pos).char == "e"
     end
 
     def adjacent(pos)
