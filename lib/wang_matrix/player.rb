@@ -31,7 +31,10 @@ module WangMatrix
       attr_writer :pos
 
       def move_to(pos)
-        self.pos = pos if maze.traversable?(pos)
+        return unless maze.traversable?(pos)
+
+        self.pos = pos
+        maze.update_visibility_from(pos)
       end
   end
 end

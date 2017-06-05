@@ -10,6 +10,8 @@ module WangMatrix
     def main_loop
       ui.setup
 
+      maze.update_visibility_from(player.pos)
+
       loop do
         ui.render
         handle_player_action(ui.get_player_action)

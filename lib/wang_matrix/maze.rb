@@ -40,7 +40,25 @@ module WangMatrix
       grid.clone
     end
 
+    def update_visibility_from(pos)
+      grid.each do |tile|
+        next if tile.visible?
+
+        tile.visible = positions_have_los(pos, tile.pos)
+      end
+    end
+
     private
       attr_reader :grid
+
+      def positions_have_los(p1, p2)
+        between = p1.points_between(p2)
+
+        return true if between.empty?
+
+        between.all? do |p|
+          grid.at(p).transparent?
+        end
+      end
   end
 end
