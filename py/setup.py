@@ -19,6 +19,7 @@ setup(
         "console_scripts": [
             "wangmatrix.solve.py = wangmatrix.solver:main",
             "wangmatrix.generate.py = wangmatrix.generate:main",
+            "wangmatrix.bsp.py = wangmatrix.bsp:main",
         ],
     },
 )

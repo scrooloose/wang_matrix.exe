@@ -29,20 +29,20 @@ class Grid(object):
         neighbours = list(p for p in [
             # N
             self.get(point.x, point.y - 1),
-            # NE
-            self.get(point.x + 1, point.y - 1),
             # E
             self.get(point.x + 1, point.y),
-            # SE
-            self.get(point.x + 1, point.y + 1),
             # S
             self.get(point.x, point.y + 1),
-            # SW
-            self.get(point.x - 1, point.y + 1),
             # W
             self.get(point.x - 1, point.y),
-            # NW
-            self.get(point.x - 1, point.y - 1),
+            # # NE
+            # self.get(point.x + 1, point.y - 1),
+            # # SE
+            # self.get(point.x + 1, point.y + 1),
+            # # SW
+            # self.get(point.x - 1, point.y + 1),
+            # # NW
+            # self.get(point.x - 1, point.y - 1),
 
         ] if p is not None)
         return neighbours

@@ -89,36 +89,44 @@ class Square(object):
         self.width = width
         self.height = height
 
+    def top(self):
+        return Vector(
+            x=self.x,
+            y=self.y,
+            length=self.width,
+            angle=90
+        ).outline()
+
+    def right(self):
+        return Vector(
+            x=self.x + self.width-1,
+            y=self.y,
+            length=self.height,
+            angle=0
+        ).outline()
+
+    def bottom(self):
+        return Vector(
+            x=self.x,
+            y=self.y + self.height - 1,
+            length=self.width,
+            angle=90
+        ).outline()
+
+    def left(self):
+        return Vector(
+            x=self.x,
+            y=self.y,
+            length=self.height,
+            angle=0
+        ).outline()
+
     def outline(self):
         return itertools.chain(
-            # Top
-            Vector(
-                x=self.x,
-                y=self.y,
-                length=self.width,
-                angle=90
-            ).outline(),
-            # Right
-            Vector(
-                x=self.x + self.width,
-                y=self.y,
-                length=self.height,
-                angle=0
-            ).outline(),
-            # Bottom
-            Vector(
-                x=self.x,
-                y=self.y + self.height - 1,
-                length=self.width,
-                angle=90
-            ).outline(),
-            # Left
-            Vector(
-                x=self.x,
-                y=self.y,
-                length=self.height,
-                angle=0
-            ).outline(),
+            self.top(),
+            self.right(),
+            self.bottom(),
+            self.left(),
         )
 
 
