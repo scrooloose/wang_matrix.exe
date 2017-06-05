@@ -11,10 +11,6 @@ module WangMatrix
       @maze_end = maze_end
     end
 
-    def at(pos)
-      grid.at(pos)
-    end
-
     def traversable?(pos)
       return false if pos.x >= width || pos.x < 0
       return false if pos.y >= height || pos.y < 0
