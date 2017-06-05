@@ -14,7 +14,6 @@ require_relative "wang_matrix/engine"
 require_relative "wang_matrix/player"
 require_relative "wang_matrix/ui"
 require_relative "wang_matrix/grid"
-require_relative "wang_matrix/maze_generator"
 require_relative "wang_matrix/tile"
 
 Log = Logger.new(File.dirname(__FILE__) + "/../log/log.log")
