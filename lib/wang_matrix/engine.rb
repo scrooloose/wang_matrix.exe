@@ -5,6 +5,7 @@ module WangMatrix
     def initialize(maze:, player:)
       @maze = maze
       @player = player
+      @done = false
     end
 
     def main_loop
@@ -12,7 +13,7 @@ module WangMatrix
 
       maze.update_visibility_from(player.pos)
 
-      loop do
+      while !@done
         ui.render
         handle_player_action(ui.get_player_action)
       end
@@ -35,6 +36,8 @@ module WangMatrix
       #names in Player - move_up, move_down etc
       def handle_player_action(action)
         player.send(action)
+      rescue
+        @done = true
       end
   end
 end
