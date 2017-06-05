@@ -17,7 +17,11 @@ module WangMatrix
     end
 
     def at(pos)
-      grid[pos.y][pos.x]
+      atxy(pos.x, pos.y)
+    end
+
+    def atxy(x, y)
+      grid[y][x]
     end
 
     def set(positionable)

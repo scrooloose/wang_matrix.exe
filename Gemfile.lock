@@ -2,12 +2,14 @@ GEM
   remote: http://rubygems.org/
   specs:
     ncurses-ruby (1.2.4)
+    parallel (1.11.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   ncurses-ruby
+  parallel
 
 BUNDLED WITH
    1.12.5

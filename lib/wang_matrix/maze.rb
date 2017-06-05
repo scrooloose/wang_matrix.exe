@@ -3,7 +3,7 @@ module WangMatrix
     attr_reader :maze_start, :maze_end
 
     extend Forwardable
-    def_delegators :@grid, :at, :width, :height
+    def_delegators :@grid, :at, :atxy, :width, :height
 
     def initialize(grid:, maze_start:, maze_end:)
       @grid = grid
@@ -36,12 +36,31 @@ module WangMatrix
       grid.clone
     end
 
-    def update_visibility_from(pos)
-      grid.each do |tile|
-        next if tile.visible?
+    def update_visibility_from(pos, range: 10)
+      start_x = [pos.x - range, 0].max
+      start_y = [pos.y - range, 0].max
+      final_x = [width-1, pos.x + range].min
+      final_y = [height-1, pos.y + range].min
 
-        tile.visible = positions_have_los(pos, tile.pos)
+      results = Parallel.map((start_y..final_y).to_a, in_process: 8) do |y|
+        start_x.upto(final_x).map do |x|
+          tile = atxy(x, y)
+
+          next if tile.visible?
+
+          [x,y] if positions_have_los(pos, tile.pos)
+        end.compact
       end
+
+      results.flatten!(1)
+
+      results.each do |coord|
+        x,y = coord
+
+        tile = atxy(x,y)
+        tile.visible = true
+      end
+
     end
 
     private
@@ -52,8 +71,8 @@ module WangMatrix
 
         return true if between.empty?
 
-        between.all? do |p|
-          grid.at(p).transparent?
+        between.none? do |p|
+          !grid.at(p).transparent?
         end
       end
   end

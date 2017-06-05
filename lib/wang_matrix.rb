@@ -2,6 +2,7 @@ require 'ncurses'
 require 'forwardable'
 require 'ostruct'
 require 'logger'
+require 'parallel'
 
 require_relative "wang_matrix/maze"
 require_relative "wang_matrix/maze_file_parser"
