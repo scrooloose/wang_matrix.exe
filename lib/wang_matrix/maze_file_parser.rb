@@ -3,14 +3,15 @@ module WangMatrix
     def perform(fname)
       lines = File.readlines(fname)
 
-      raw_grid = lines.each_with_index.map do |line, y|
-        line.sub("\n", '').split('').each_with_index.map do |char, x|
-          tile_for(char: char, x: x, y: y)
-        end
+      tiles = []
 
+      lines.each_with_index.map do |line, y|
+        line.sub("\n", '').split('').each_with_index.map do |char, x|
+          tiles << tile_for(char: char, x: x, y: y)
+        end
       end
 
-      grid = Grid.from_2d_array(raw_grid)
+      grid = Grid.new_from_array(tiles)
 
       Maze.new(
         grid: grid,

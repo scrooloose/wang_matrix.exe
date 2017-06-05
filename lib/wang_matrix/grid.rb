@@ -7,29 +7,24 @@ module WangMatrix
       @height = height
     end
 
-    # @array: of horizontal lines
-    def self.from_2d_array(array)
-      new(width: array.first.size, height: array.size).tap do |grid|
-        array.each_with_index do |line, y|
-          line.each_with_index do |obj, x|
-            grid.setxy(x, y, array[y][x])
-          end
-        end
-      end
+    def self.new_from_array(array)
+      height = array.max {|obj| obj.pos.y}.pos.y+1
+      width = array.max {|obj| obj.pos.x}.pos.x+1
+      grid = new(width: width, height: height)
+
+      array.each {|obj| grid.set(obj)}
+      grid
     end
 
     def at(pos)
       grid[pos.y][pos.x]
     end
 
-    def set(pos, obj)
-      setxy(pos.x, pos.y, obj)
-    end
-
-    def setxy(x, y, obj)
-      raise "Invalid x (#{x}). Width: #{width}" if x >= width
-      raise "Invalid y (#{y}). Height #{height}" if y >= height
-      grid[y][x] = obj
+    def set(positionable)
+      pos = positionable.pos
+      raise "Invalid x (#{pos.x}). Width: #{width}" if pos.x >= width
+      raise "Invalid y (#{pos.y}). Height #{height}" if pos.y >= height
+      grid[pos.y][pos.x] = positionable
     end
 
     def find(tile_char)
