@@ -1,22 +1,7 @@
 import sys
 import time
-from collections import namedtuple
 
-Point = namedtuple("Point", "x y")
-
-
-class Pixel(object):
-    def __init__(self, point, value):
-        self.point = point
-        self.value = value
-
-    @property
-    def x(self):
-        return self.point.x
-
-    @property
-    def y(self):
-        return self.point.y
+from .drawing import Point, Pixel, Canvas, decorate
 
 
 class Grid(object):
@@ -80,15 +65,6 @@ class Grid(object):
                 yield point
 
 
-def ticks(width, every):
-    for c in " " * (every - 1):
-        yield c
-    for i in (i for i in range(1, width) if (i % every) == 0):
-        buffer = str(i).ljust(every)
-        for c in buffer:
-            yield c
-
-
 def parse(f):
     start = None
     end = None
@@ -133,44 +109,6 @@ class Solver(object):
                         continue
                     self.current[next_point] = tail + [point]
 
-
-class Canvas(object):
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
-        row = [""] * width
-        self.grid = [row[:] for _ in range(height)]
-
-    def draw(self, points):
-        for point in points:
-            try:
-                self.grid[point.y][point.x] = point.value
-            except IndexError:
-                pass
-
-    def __str__(self):
-        width = self.width
-        gutter_width = len(str(self.height))
-        header = " " * gutter_width + " " + "".join(ticks(width, 5))
-        return "\n".join(
-            [header] +
-            list(
-                str(row_number if row_number % 5 == 0 else "").rjust(
-                    gutter_width
-                ) +
-                " " +
-                "".join(
-                    value for value in row
-                ) +
-                " " +
-                str(row_number if row_number % 5 == 0 else "").rjust(
-                    gutter_width
-                )
-                for row_number, row in enumerate(self.grid, 1)
-            ) +
-            [header]
-        )
-
 RED = "\x1B[31m"
 RESET = "\x1B[39;49m"
 CLEAR = "\x1B[2J"
@@ -189,7 +127,7 @@ def main():
         c.draw(Pixel(p, RED + "~" + RESET) for p in solver.visited)
         c.draw([Pixel(start, "s")])
         c.draw([Pixel(end, "e")])
-        print(str(c))
+        print(decorate(c))
         time.sleep(0.1)
 
     solution = solver.current.get(end)
@@ -202,4 +140,4 @@ def main():
         c.draw(Pixel(p, RED + "o" + RESET) for p in solution)
         c.draw([Pixel(start, "s")])
         c.draw([Pixel(end, "e")])
-        print(str(c))
+        print(decorate(c))
