@@ -42,10 +42,10 @@ module WangMatrix
       Marshal.load(Marshal::dump(self))
     end
 
-    def to_s
+    def to_s(force_visible: false)
       grid.map do |line|
         line.map do |tile|
-          if tile.visible?
+          if tile.visible? || force_visible
             tile.char
           else
             " "
