@@ -12,13 +12,11 @@ module WangMatrix
     end
 
     def traversable?(pos)
-      return false if pos.x >= width || pos.x < 0
-      return false if pos.y >= height || pos.y < 0
-      return at(pos).traversable?
+      at(pos)&.traversable?
     end
 
     def finish?(pos)
-      at(pos).char == "e"
+      pos == maze_end
     end
 
     def adjacent(pos)
@@ -36,13 +34,13 @@ module WangMatrix
       grid.clone
     end
 
-    def update_visibility_from(pos, range: 10)
+    def update_visibility_from(pos, range: 10, workers: 8)
       start_x = [pos.x - range, 0].max
       start_y = [pos.y - range, 0].max
       final_x = [width-1, pos.x + range].min
       final_y = [height-1, pos.y + range].min
 
-      results = Parallel.map((start_y..final_y).to_a, in_process: 8) do |y|
+      results = Parallel.map((start_y..final_y).to_a, in_process: workers) do |y|
         start_x.upto(final_x).map do |x|
           tile = atxy(x, y)
 

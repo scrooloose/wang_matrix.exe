@@ -22,7 +22,7 @@ module WangMatrix
     end
 
     def atxy(x, y)
-      grid[y][x]
+      grid[y][x] rescue nil
     end
 
     def set(positionable)

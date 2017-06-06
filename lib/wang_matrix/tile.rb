@@ -21,7 +21,7 @@ module WangMatrix
     end
 
     def self.start(pos:, **args)
-      new({pos: pos, transparent: false, traversable: false, char: "s"}.merge(args))
+      new({pos: pos, transparent: false, traversable: true, char: "s"}.merge(args))
     end
 
     def self.end(pos:, **args)
