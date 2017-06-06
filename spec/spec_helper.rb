@@ -98,5 +98,11 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
 end
+
 require_relative '../lib/wang_matrix'
 
+module SpecHelpers
+  def self.fixture_fpath(fname)
+    File.dirname(__FILE__) + "/test_files/#{fname}"
+  end
+end
