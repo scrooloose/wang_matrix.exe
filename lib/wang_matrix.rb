@@ -1,3 +1,5 @@
+require "bundler/setup"
+
 require 'ncurses'
 require 'forwardable'
 require 'ostruct'

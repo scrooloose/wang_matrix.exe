@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require_relative "../lib/wang_matrix"
+
 usage = <<EOS
 
 Find and show solution for maze
@@ -15,7 +17,6 @@ if ARGV.none? || ARGV.first == "-h"
   exit
 end
 
-require_relative "../lib/wang_matrix"
 maze = WangMatrix::MazeFileParser.new.perform(ARGV.last)
 
 if ARGV.first == "-s"
