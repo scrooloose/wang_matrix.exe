@@ -25,7 +25,7 @@ module WangMatrix
     end
 
     def self.end(pos:, **args)
-      new({pos: pos, transparent: false, traversable: false, char: "e"}.merge(args))
+      new({pos: pos, transparent: false, traversable: true, char: "e"}.merge(args))
     end
 
     def traversable?

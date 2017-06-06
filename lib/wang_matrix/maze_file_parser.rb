@@ -26,10 +26,10 @@ module WangMatrix
         pos = Pos.new(x, y)
 
         case char
-        when "#" then Tile.new(pos: pos, char: char, traversable: false, transparent: false)
-        when "s" then Tile.new(pos: pos, char: char, traversable: true, transparent: true)
-        when "e" then Tile.new(pos: pos, char: char, traversable: true, transparent: true)
-        when " " then Tile.new(pos: pos, char: char, traversable: true, transparent: true)
+        when "#" then Tile.wall(pos: pos)
+        when "s" then Tile.start(pos: pos)
+        when "e" then Tile.end(pos: pos)
+        when " " then Tile.space(pos: pos)
         else
           raise "Unexpected char '#{char}'"
         end
