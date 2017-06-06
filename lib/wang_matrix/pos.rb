@@ -38,6 +38,10 @@ module WangMatrix
       line_to(other).reject {|p| p == other || p == self}
     end
 
+    def to_a
+      [x,y]
+    end
+
     private
 
       #Use Bresenham's line alg. Stolen + adapted from
