@@ -34,9 +34,7 @@ module WangMatrix
     def find(tile_char)
       grid.each_with_index do |line, y|
         line.each_with_index do |tile, x|
-          if tile.char == tile_char
-            return Pos.new(x, y)
-          end
+          return tile if tile.char == tile_char
         end
       end
     end

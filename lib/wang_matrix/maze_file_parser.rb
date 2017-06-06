@@ -15,8 +15,8 @@ module WangMatrix
 
       Maze.new(
         grid: grid,
-        maze_start: grid.find('s'),
-        maze_end: grid.find('e')
+        maze_start: grid.find('s').pos,
+        maze_end: grid.find('e').pos
       )
     end
 
