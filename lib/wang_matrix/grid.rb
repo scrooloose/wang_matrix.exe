@@ -2,9 +2,10 @@ module WangMatrix
   class Grid
     attr_reader :width, :height
     def initialize(width: 5, height: 5)
-      @grid = (0..(height-1)).map { Array.new(width-1) }
+      @grid = (0..(height-1)).map { Array.new(width) }
       @width = width
       @height = height
+      init_with_spaces
     end
 
     def self.new_from_array(array)
@@ -34,7 +35,7 @@ module WangMatrix
     def find(tile_char)
       grid.each_with_index do |line, y|
         line.each_with_index do |tile, x|
-          return tile if tile.char == tile_char
+          return tile if tile && tile.char == tile_char
         end
       end
     end
@@ -67,5 +68,13 @@ module WangMatrix
     private
       attr_reader :grid
 
+      def init_with_spaces
+        grid.each_with_index do |line, y|
+          line.each_with_index do |tile, x|
+            set(Tile.space(pos: Pos.new(x, y)))
+          end
+        end
+        self
+      end
   end
 end
