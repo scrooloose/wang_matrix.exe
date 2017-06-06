@@ -25,6 +25,7 @@ DEPENDENCIES
   ncurses-ruby
   parallel
   rspec
+  rspec-mocks
 
 BUNDLED WITH
    1.12.5
