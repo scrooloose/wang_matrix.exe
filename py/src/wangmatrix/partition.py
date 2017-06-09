@@ -11,8 +11,31 @@ class Area(object):
         self.b = y + h - 1
 
     def __repr__(self):
-        return "Area[top-left: %d,%d. Bot right: %d,%d]" % (self.x, self.y, self.r, self.b)
+        return "Area[x:%d y:%d w:%d h:%d]" % (self.x, self.y, self.w, self.h)
 
+    def scale(self, max_percent=50, min_percent=20, min_h=4, min_w=5):
+        new_w = Scaler(scalar=self.w, min_perc=min_percent, max_perc = max_percent, min_val = min_w).perform()
+        new_h = Scaler(scalar=self.h, min_perc=min_percent, max_perc = max_percent, min_val = min_h).perform()
+
+        new_x = ((self.x + self.x + self.w) / 2) - (new_w / 2)
+        new_y = ((self.y + self.y + self.h) / 2) - (new_h / 2)
+        return Area(x = int(new_x), y = int(new_y), w = int(round(new_w)), h = int(round(new_h)))
+
+class Scaler(object):
+    def __init__(self, scalar, min_perc, max_perc, min_val):
+        self.scalar = scalar
+        self.min_perc = min_perc
+        self.max_perc = max_perc
+        self.min_val = min_val
+
+    def perform(self):
+        return random.randint(self._min_value(), self._max_value())
+
+    def _min_value(self):
+        return max(self.min_val, int(self.scalar * self.min_perc / 100))
+
+    def _max_value(self):
+        return max(self.min_val, int(self.scalar * (self.max_perc / 100)))
 
 class BSPPartitioner(object):
 
@@ -63,10 +86,11 @@ def main(h=40, w=100):
     root_area = Area(x=1,y=1,h=h,w=w)
     canvas = drawing.Canvas(w+1, h+1)
 
-    areas = BSPPartitioner(min_h=10, min_w=20).perform(root_area)
+    areas = BSPPartitioner(min_h=12, min_w=15).perform(root_area)
 
     for a in areas:
-        square = drawing.Square(a.x, a.y, a.w, a.h)
-        canvas.draw(drawing.Pixel(p, "#") for p in square.outline())
+        shrunken = a.scale(min_percent=50, max_percent=90)
+        shrunk_square = drawing.Square(shrunken.x, shrunken.y, shrunken.w, shrunken.h)
+        canvas.draw(drawing.Pixel(p, "#") for p in shrunk_square.outline())
 
     print(str(drawing.decorate(canvas)))
