@@ -1,6 +1,25 @@
 import random
 import drawing
 
+class BTree(object):
+    def __init__(self, payload, left_child=None, right_child=None):
+        self.payload = payload
+        self.left_child = left_child
+        self.right_child = right_child
+
+    def each_leaf(self, callback):
+        if self.is_leaf():
+            callback(self)
+        else:
+            self.left_child.each_leaf(callback)
+            self.right_child.each_leaf(callback)
+
+    def is_leaf(self):
+        return (self.left_child, self.right_child) == (None, None)
+
+    def set_payload(self, payload):
+        self.payload = payload
+
 class Area(object):
     def __init__(self, x=0, y=0, w=1, h=1):
         self.x = x
@@ -13,13 +32,17 @@ class Area(object):
     def __repr__(self):
         return "Area[x:%d y:%d w:%d h:%d]" % (self.x, self.y, self.w, self.h)
 
-    def scale(self, max_percent=50, min_percent=20, min_h=4, min_w=5):
+    def scale(self, min_percent=50, max_percent=90, min_h=4, min_w=5):
         new_w = Scaler(scalar=self.w, min_perc=min_percent, max_perc = max_percent, min_val = min_w).perform()
         new_h = Scaler(scalar=self.h, min_perc=min_percent, max_perc = max_percent, min_val = min_h).perform()
-
         new_x = ((self.x + self.x + self.w) / 2) - (new_w / 2)
         new_y = ((self.y + self.y + self.h) / 2) - (new_h / 2)
         return Area(x = int(new_x), y = int(new_y), w = int(round(new_w)), h = int(round(new_h)))
+
+    def render_to_canvas(self, canvas):
+        s = drawing.Square(self.x, self.y, self.w, self.h)
+        canvas.draw(drawing.Pixel(p, "#") for p in s.outline())
+
 
 class Scaler(object):
     def __init__(self, scalar, min_perc, max_perc, min_val):
@@ -42,22 +65,26 @@ class BSPPartitioner(object):
     def __init__(self, min_h=6, min_w=6):
         self.min_h = min_h
         self.min_w = min_w
-        self.__areas = []
 
     def perform(self, area, cut="vertical"):
-        self._perform_for_real(area, cut=cut)
-        return self.__areas
+        btree = BTree(payload=area)
+        self._perform_for_real(btree, cut=cut)
+        return btree
 
-    def _perform_for_real(self, area, cut=None):
+    def _perform_for_real(self, btree, cut=None):
         next_cut = "horizontal" if cut == "vertical" else "vertical"
 
-        for child_area in getattr(self, "_cut_" + cut)(area=area):
-            self._perform_for_real(child_area, cut=next_cut)
+        child_areas = getattr(self, "_cut_" + cut)(area=btree.payload)
+
+        if len(child_areas) > 0:
+            btree.left_child = BTree(payload=child_areas[0])
+            btree.right_child = BTree(payload=child_areas[1])
+            self._perform_for_real(btree.left_child, cut=next_cut)
+            self._perform_for_real(btree.right_child, cut=next_cut)
 
     def _cut_vertical(self, area):
         cut = self._cut_position(area.w-1, self.min_w)
         if cut == None:
-            self.__areas.append(area)
             return []
 
         left = Area(x=area.x, y=area.y, w=cut, h=area.h)
@@ -68,7 +95,6 @@ class BSPPartitioner(object):
         cut = self._cut_position(area.h-1, self.min_h)
 
         if cut == None:
-            self.__areas.append(area)
             return []
 
         top = Area(x=area.x, y=area.y, w=area.w, h=cut)
@@ -81,16 +107,13 @@ class BSPPartitioner(object):
             return None
         return random.randint(0 + buffer, width - buffer)
 
-
 def main(h=40, w=100):
     root_area = Area(x=1,y=1,h=h,w=w)
     canvas = drawing.Canvas(w+1, h+1)
 
-    areas = BSPPartitioner(min_h=12, min_w=15).perform(root_area)
-
-    for a in areas:
-        shrunken = a.scale(min_percent=50, max_percent=90)
-        shrunk_square = drawing.Square(shrunken.x, shrunken.y, shrunken.w, shrunken.h)
-        canvas.draw(drawing.Pixel(p, "#") for p in shrunk_square.outline())
+    btree = BSPPartitioner(min_h=12, min_w=15).perform(root_area)
+    btree.each_leaf(lambda node: (
+        node.set_payload(node.payload.scale()),
+        node.payload.render_to_canvas(canvas)))
 
     print(str(drawing.decorate(canvas)))
