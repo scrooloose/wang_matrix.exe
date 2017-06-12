@@ -61,18 +61,20 @@ class Scaler(object):
         return max(self.min_val, int(self.scalar * (self.max_perc / 100)))
 
 class BSPPartitioner(object):
+    CUT_HORIZONTAL="horizontal"
+    CUT_VERTICAL="vertical"
 
     def __init__(self, min_h=6, min_w=6):
         self.min_h = min_h
         self.min_w = min_w
 
-    def perform(self, area, cut="vertical"):
+    def perform(self, area, cut=CUT_VERTICAL):
         btree = BTree(payload=area)
         self._perform_for_real(btree, cut=cut)
         return btree
 
     def _perform_for_real(self, btree, cut=None):
-        next_cut = "horizontal" if cut == "vertical" else "vertical"
+        next_cut = self.CUT_HORIZONTAL if cut == self.CUT_VERTICAL else self.CUT_VERTICAL
 
         child_areas = getattr(self, "_cut_" + cut)(area=btree.payload)
 
