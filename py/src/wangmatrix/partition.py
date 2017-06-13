@@ -245,15 +245,15 @@ class PathBuilder:
 
         return rv
 
-def main(h=40, w=100):
+def main(h=40, w=100, min_w=15, min_h=12, min_scale=40, max_scale=70):
     root_area = Area(x=1,y=1,h=h,w=w)
     canvas = drawing.Canvas(w+1, h+1)
 
-    btree = BSPPartitioner(min_h=12, min_w=15).perform(root_area)
+    btree = BSPPartitioner(min_h=min_h, min_w=min_w).perform(root_area)
 
     btree.each_leaf(lambda node: (
         # node.area.render_to_canvas(canvas, char="."),
-        node.set_area(node.area.scale()),
+        node.set_area(node.area.scale(min_percent=min_scale, max_percent=max_scale)),
         node.area.render_to_canvas(canvas)))
 
     for path in PathBuilder(btree).perform():
