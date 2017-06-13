@@ -80,6 +80,19 @@ class Area(object):
     def mid_x(self):
         return int(self.x + self.w/2)
 
+    def y_overlap_with(self, area):
+        return sorted(set(self._y_overlap_range()).intersection(area._y_overlap_range()))
+
+    def _y_overlap_range(self):
+        return range(self.y + 1, self.y + self.h -1)
+
+    def x_overlap_with(self, area):
+        return sorted(set(self._x_overlap_range()).intersection(area._x_overlap_range()))
+
+    def _x_overlap_range(self):
+        return range(self.x + 1, self.x + self.w -1)
+
+
 class Scaler(object):
     def __init__(self, scalar, min_perc, max_perc, min_val):
         self.scalar = scalar
@@ -174,7 +187,12 @@ class PathBuilder:
             left = node.right_child.right_most_room().area
             right = node.left_child.left_most_room().area
 
-        return self.h_elbow_for(left.r, left.mid_y(), right.x, right.mid_y())
+        overlap = left.y_overlap_with(right)
+        if overlap:
+            mid_y = overlap[int(len(overlap)/2)]
+            return self.h_elbow_for(left.r, mid_y, right.x, mid_y)
+        else:
+            return self.h_elbow_for(left.r, left.mid_y(), right.x, right.mid_y())
 
     def _v_path_for(self, node):
         if node.left_child.area.y < node.right_child.area.y:
@@ -184,7 +202,12 @@ class PathBuilder:
             top = node.right_child.bottom_most_room().area
             bottom = node.left_child.top_most_room().area
 
-        return self.v_elbow_for(top.mid_x(), top.b, bottom.mid_x(), bottom.y)
+        overlap = top.x_overlap_with(bottom)
+        if overlap:
+            mid_x = overlap[int(len(overlap)/2)]
+            return self.v_elbow_for(mid_x, top.b, mid_x, bottom.y)
+        else:
+            return self.v_elbow_for(top.mid_x(), top.b, bottom.mid_x(), bottom.y)
 
     def v_elbow_for(self, tx, ty, bx, by):
         half_y = int((by - ty) / 2)
