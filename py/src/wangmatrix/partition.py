@@ -153,18 +153,18 @@ class PathBuilder:
     def perform(self):
         # for n in map(lambda n: n.parent, self.btree.leaf_parents()):
         for n in self.btree.leaf_parents():
-            self.connect(n)
+            self._connect(n)
 
         return self.paths
 
-    def connect(self, node):
+    def _connect(self, node):
         if node.is_horizontal_cut():
             self.paths.append(self._v_path_for(node))
         else:
             self.paths.append(self._h_path_for(node))
 
         if node.parent:
-            self.connect(node.parent)
+            self._connect(node.parent)
 
     def _h_path_for(self, node):
         left = None
