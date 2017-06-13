@@ -1,11 +1,22 @@
 import random
 import drawing
 
-class BTree(object):
-    def __init__(self, payload, left_child=None, right_child=None):
+class BSPTree(object):
+    def __init__(self, payload, parent=None, left_child=None, right_child=None, cut=None):
         self.payload = payload
         self.left_child = left_child
         self.right_child = right_child
+        self.cut = cut
+        self.parent = parent
+
+    #FIXME: should probably cache this or something
+    def leaves(self):
+        rv = []
+        self.each_leaf(lambda l: rv.append(l))
+        return rv
+
+    def leaf_parents(self):
+        return list(set(map(lambda l: l.parent, self.leaves())))
 
     def each_leaf(self, callback):
         if self.is_leaf():
@@ -17,8 +28,28 @@ class BTree(object):
     def is_leaf(self):
         return (self.left_child, self.right_child) == (None, None)
 
+    def is_horizontal_cut(self):
+        return self.cut == BSPPartitioner.CUT_HORIZONTAL
+
     def set_payload(self, payload):
         self.payload = payload
+
+    def first_leaf_parent(self):
+        leaves = self.leaves()
+        if len(leaves) > 0:
+            return leaves[0]
+
+    def top_most_room(self):
+        return min(self.leaves(), key=lambda l: l.payload.y)
+
+    def bottom_most_room(self):
+        return max(self.leaves(), key=lambda l: l.payload.b)
+
+    def left_most_room(self):
+        return min(self.leaves(), key=lambda l: l.payload.x)
+
+    def right_most_room(self):
+        return max(self.leaves(), key=lambda l: l.payload.r)
 
 class Area(object):
     def __init__(self, x=0, y=0, w=1, h=1):
@@ -32,17 +63,22 @@ class Area(object):
     def __repr__(self):
         return "Area[x:%d y:%d w:%d h:%d]" % (self.x, self.y, self.w, self.h)
 
-    def scale(self, min_percent=50, max_percent=90, min_h=4, min_w=5):
+    def scale(self, min_percent=50, max_percent=70, min_h=4, min_w=5):
         new_w = Scaler(scalar=self.w, min_perc=min_percent, max_perc = max_percent, min_val = min_w).perform()
         new_h = Scaler(scalar=self.h, min_perc=min_percent, max_perc = max_percent, min_val = min_h).perform()
         new_x = ((self.x + self.x + self.w) / 2) - (new_w / 2)
         new_y = ((self.y + self.y + self.h) / 2) - (new_h / 2)
         return Area(x = int(new_x), y = int(new_y), w = int(round(new_w)), h = int(round(new_h)))
 
-    def render_to_canvas(self, canvas):
+    def render_to_canvas(self, canvas, char="#"):
         s = drawing.Square(self.x, self.y, self.w, self.h)
-        canvas.draw(drawing.Pixel(p, "#") for p in s.outline())
+        canvas.draw(drawing.Pixel(p, char) for p in s.outline())
 
+    def mid_y(self):
+        return int(self.y + self.h/2)
+
+    def mid_x(self):
+        return int(self.x + self.w/2)
 
 class Scaler(object):
     def __init__(self, scalar, min_perc, max_perc, min_val):
@@ -69,7 +105,7 @@ class BSPPartitioner(object):
         self.min_w = min_w
 
     def perform(self, area, cut=CUT_VERTICAL):
-        btree = BTree(payload=area)
+        btree = BSPTree(payload=area, cut=cut)
         self._perform_for_real(btree, cut=cut)
         return btree
 
@@ -79,8 +115,8 @@ class BSPPartitioner(object):
         child_areas = getattr(self, "_cut_" + cut)(area=btree.payload)
 
         if len(child_areas) > 0:
-            btree.left_child = BTree(payload=child_areas[0])
-            btree.right_child = BTree(payload=child_areas[1])
+            btree.left_child = BSPTree(payload=child_areas[0], parent=btree, cut=next_cut)
+            btree.right_child = BSPTree(payload=child_areas[1], parent=btree, cut=next_cut)
             self._perform_for_real(btree.left_child, cut=next_cut)
             self._perform_for_real(btree.right_child, cut=next_cut)
 
@@ -109,13 +145,105 @@ class BSPPartitioner(object):
             return None
         return random.randint(0 + buffer, width - buffer)
 
+class PathBuilder:
+    def __init__(self, btree):
+        self.btree = btree
+        self.paths = []
+
+    def perform(self):
+        # for n in map(lambda n: n.parent, self.btree.leaf_parents()):
+        for n in self.btree.leaf_parents():
+            self.connect(n)
+
+        return self.paths
+
+    def connect(self, node):
+        if node.is_horizontal_cut():
+            self.paths.append(self._v_path_for(node))
+        else:
+            self.paths.append(self._h_path_for(node))
+
+        if node.parent:
+            self.connect(node.parent)
+
+    def _h_path_for(self, node):
+        left = None
+        right = None
+        if node.left_child.payload.x < node.right_child.payload.x:
+            left = node.left_child.right_most_room().payload
+            right = node.right_child.left_most_room().payload
+        else:
+            left = node.right_child.right_most_room().payload
+            right = node.left_child.left_most_room().payload
+
+        return self.h_elbow_for(left.r, left.mid_y(), right.x, right.mid_y())
+
+    def _v_path_for(self, node):
+        top = None
+        bottom = None
+
+        if node.left_child.payload.y < node.right_child.payload.y:
+            top = node.left_child.bottom_most_room().payload
+            bottom = node.right_child.top_most_room().payload
+        else:
+            top = node.right_child.bottom_most_room().payload
+            bottom = node.left_child.top_most_room().payload
+
+        return self.v_elbow_for(top.mid_x(), top.b, bottom.mid_x(), bottom.y)
+
+    def v_elbow_for(self, tx, ty, bx, by):
+        half_y = int((by - ty) / 2)
+
+        rv = []
+        #top vertical bit
+        for y in range(ty, ty + half_y):
+            rv.append((tx, y))
+
+        #horizontal middle bit
+        for x in range(tx, bx, 1 if bx > tx else -1):
+            rv.append((x, ty + half_y))
+
+        #bottom vertical bit
+        for y in range(ty + half_y, by+1):
+            rv.append((bx, y))
+
+        return rv
+
+    def h_elbow_for(self, lx, ly, rx, ry):
+        half_x = int((rx - lx) / 2)
+
+        rv = []
+        #left horizontal bit
+        for x in range(lx, lx + half_x):
+            rv.append((x, ly))
+
+        #vertical middle bit
+        for y in range(ly, ry, 1 if ry > ly else -1):
+            rv.append((lx + half_x, y))
+
+        #right horizontal bit
+        for x in range(lx + half_x, rx+1):
+            rv.append((x, ry))
+
+        return rv
+
 def main(h=40, w=100):
     root_area = Area(x=1,y=1,h=h,w=w)
     canvas = drawing.Canvas(w+1, h+1)
 
     btree = BSPPartitioner(min_h=12, min_w=15).perform(root_area)
+
     btree.each_leaf(lambda node: (
+        # node.payload.render_to_canvas(canvas, char="."),
         node.set_payload(node.payload.scale()),
         node.payload.render_to_canvas(canvas)))
 
+    for path in PathBuilder(btree).perform():
+        points = map(lambda p: drawing.Point(p[0], p[1]), path)
+        pixels = map(lambda p: drawing.Pixel(p, "*"), points)
+        canvas.draw(pixels)
+
+
     print(str(drawing.decorate(canvas)))
+
+    return btree
