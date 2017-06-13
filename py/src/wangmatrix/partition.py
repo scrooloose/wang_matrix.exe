@@ -2,8 +2,8 @@ import random
 import drawing
 
 class BSPTree(object):
-    def __init__(self, payload, parent=None, left_child=None, right_child=None, cut=None):
-        self.payload = payload
+    def __init__(self, area, parent=None, left_child=None, right_child=None, cut=None):
+        self.area = area
         self.left_child = left_child
         self.right_child = right_child
         self.cut = cut
@@ -31,8 +31,8 @@ class BSPTree(object):
     def is_horizontal_cut(self):
         return self.cut == BSPPartitioner.CUT_HORIZONTAL
 
-    def set_payload(self, payload):
-        self.payload = payload
+    def set_area(self, area):
+        self.area = area
 
     def first_leaf_parent(self):
         leaves = self.leaves()
@@ -40,16 +40,16 @@ class BSPTree(object):
             return leaves[0]
 
     def top_most_room(self):
-        return min(self.leaves(), key=lambda l: l.payload.y)
+        return min(self.leaves(), key=lambda l: l.area.y)
 
     def bottom_most_room(self):
-        return max(self.leaves(), key=lambda l: l.payload.b)
+        return max(self.leaves(), key=lambda l: l.area.b)
 
     def left_most_room(self):
-        return min(self.leaves(), key=lambda l: l.payload.x)
+        return min(self.leaves(), key=lambda l: l.area.x)
 
     def right_most_room(self):
-        return max(self.leaves(), key=lambda l: l.payload.r)
+        return max(self.leaves(), key=lambda l: l.area.r)
 
 class Area(object):
     def __init__(self, x=0, y=0, w=1, h=1):
@@ -105,18 +105,18 @@ class BSPPartitioner(object):
         self.min_w = min_w
 
     def perform(self, area, cut=CUT_VERTICAL):
-        btree = BSPTree(payload=area, cut=cut)
+        btree = BSPTree(area=area, cut=cut)
         self._perform_for_real(btree, cut=cut)
         return btree
 
     def _perform_for_real(self, btree, cut=None):
         next_cut = self.CUT_HORIZONTAL if cut == self.CUT_VERTICAL else self.CUT_VERTICAL
 
-        child_areas = getattr(self, "_cut_" + cut)(area=btree.payload)
+        child_areas = getattr(self, "_cut_" + cut)(area=btree.area)
 
         if len(child_areas) > 0:
-            btree.left_child = BSPTree(payload=child_areas[0], parent=btree, cut=next_cut)
-            btree.right_child = BSPTree(payload=child_areas[1], parent=btree, cut=next_cut)
+            btree.left_child = BSPTree(area=child_areas[0], parent=btree, cut=next_cut)
+            btree.right_child = BSPTree(area=child_areas[1], parent=btree, cut=next_cut)
             self._perform_for_real(btree.left_child, cut=next_cut)
             self._perform_for_real(btree.right_child, cut=next_cut)
 
@@ -169,12 +169,12 @@ class PathBuilder:
     def _h_path_for(self, node):
         left = None
         right = None
-        if node.left_child.payload.x < node.right_child.payload.x:
-            left = node.left_child.right_most_room().payload
-            right = node.right_child.left_most_room().payload
+        if node.left_child.area.x < node.right_child.area.x:
+            left = node.left_child.right_most_room().area
+            right = node.right_child.left_most_room().area
         else:
-            left = node.right_child.right_most_room().payload
-            right = node.left_child.left_most_room().payload
+            left = node.right_child.right_most_room().area
+            right = node.left_child.left_most_room().area
 
         return self.h_elbow_for(left.r, left.mid_y(), right.x, right.mid_y())
 
@@ -182,12 +182,12 @@ class PathBuilder:
         top = None
         bottom = None
 
-        if node.left_child.payload.y < node.right_child.payload.y:
-            top = node.left_child.bottom_most_room().payload
-            bottom = node.right_child.top_most_room().payload
+        if node.left_child.area.y < node.right_child.area.y:
+            top = node.left_child.bottom_most_room().area
+            bottom = node.right_child.top_most_room().area
         else:
-            top = node.right_child.bottom_most_room().payload
-            bottom = node.left_child.top_most_room().payload
+            top = node.right_child.bottom_most_room().area
+            bottom = node.left_child.top_most_room().area
 
         return self.v_elbow_for(top.mid_x(), top.b, bottom.mid_x(), bottom.y)
 
@@ -234,9 +234,9 @@ def main(h=40, w=100):
     btree = BSPPartitioner(min_h=12, min_w=15).perform(root_area)
 
     btree.each_leaf(lambda node: (
-        # node.payload.render_to_canvas(canvas, char="."),
-        node.set_payload(node.payload.scale()),
-        node.payload.render_to_canvas(canvas)))
+        # node.area.render_to_canvas(canvas, char="."),
+        node.set_area(node.area.scale()),
+        node.area.render_to_canvas(canvas)))
 
     for path in PathBuilder(btree).perform():
         points = map(lambda p: drawing.Point(p[0], p[1]), path)
