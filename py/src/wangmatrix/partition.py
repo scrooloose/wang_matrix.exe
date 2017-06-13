@@ -167,8 +167,6 @@ class PathBuilder:
             self._connect(node.parent)
 
     def _h_path_for(self, node):
-        left = None
-        right = None
         if node.left_child.area.x < node.right_child.area.x:
             left = node.left_child.right_most_room().area
             right = node.right_child.left_most_room().area
@@ -179,9 +177,6 @@ class PathBuilder:
         return self.h_elbow_for(left.r, left.mid_y(), right.x, right.mid_y())
 
     def _v_path_for(self, node):
-        top = None
-        bottom = None
-
         if node.left_child.area.y < node.right_child.area.y:
             top = node.left_child.bottom_most_room().area
             bottom = node.right_child.top_most_room().area
