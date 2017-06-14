@@ -196,9 +196,9 @@ class PathBuilder:
         overlap = left.y_overlap_with(right)
         if overlap:
             mid_y = overlap[int(len(overlap)/2)]
-            path_points = self.h_elbow_for(left.r, mid_y, right.x, mid_y)
+            path_points = self._h_elbow_for(left.r, mid_y, right.x, mid_y)
         else:
-            path_points = self.h_elbow_for(left.r, left.mid_y(), right.x, right.mid_y())
+            path_points = self._h_elbow_for(left.r, left.mid_y(), right.x, right.mid_y())
 
         return Path(points=path_points, area1 = node.left_child, area2 = node.right_child)
 
@@ -213,13 +213,13 @@ class PathBuilder:
         overlap = top.x_overlap_with(bottom)
         if overlap:
             mid_x = overlap[int(len(overlap)/2)]
-            path_points = self.v_elbow_for(mid_x, top.b, mid_x, bottom.y)
+            path_points = self._v_elbow_for(mid_x, top.b, mid_x, bottom.y)
         else:
-            path_points = self.v_elbow_for(top.mid_x(), top.b, bottom.mid_x(), bottom.y)
+            path_points = self._v_elbow_for(top.mid_x(), top.b, bottom.mid_x(), bottom.y)
 
         return Path(points=path_points, area1 = node.left_child, area2 = node.right_child)
 
-    def v_elbow_for(self, tx, ty, bx, by):
+    def _v_elbow_for(self, tx, ty, bx, by):
         half_y = int((by - ty) / 2)
 
         rv = []
@@ -237,7 +237,7 @@ class PathBuilder:
 
         return rv
 
-    def h_elbow_for(self, lx, ly, rx, ry):
+    def _h_elbow_for(self, lx, ly, rx, ry):
         half_x = int((rx - lx) / 2)
 
         rv = []
