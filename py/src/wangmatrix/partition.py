@@ -158,6 +158,12 @@ class BSPPartitioner(object):
             return None
         return random.randint(0 + buffer, width - buffer)
 
+class Path:
+    def __init__(self, area1, area2, points):
+        self.area1 = area1
+        self.area2 = area2
+        self.points = points
+
 class PathBuilder:
     def __init__(self, btree):
         self.btree = btree
@@ -190,9 +196,11 @@ class PathBuilder:
         overlap = left.y_overlap_with(right)
         if overlap:
             mid_y = overlap[int(len(overlap)/2)]
-            return self.h_elbow_for(left.r, mid_y, right.x, mid_y)
+            path_points = self.h_elbow_for(left.r, mid_y, right.x, mid_y)
         else:
-            return self.h_elbow_for(left.r, left.mid_y(), right.x, right.mid_y())
+            path_points = self.h_elbow_for(left.r, left.mid_y(), right.x, right.mid_y())
+
+        return Path(points=path_points, area1 = node.left_child, area2 = node.right_child)
 
     def _v_path_for(self, node):
         if node.left_child.area.y < node.right_child.area.y:
@@ -205,9 +213,11 @@ class PathBuilder:
         overlap = top.x_overlap_with(bottom)
         if overlap:
             mid_x = overlap[int(len(overlap)/2)]
-            return self.v_elbow_for(mid_x, top.b, mid_x, bottom.y)
+            path_points = self.v_elbow_for(mid_x, top.b, mid_x, bottom.y)
         else:
-            return self.v_elbow_for(top.mid_x(), top.b, bottom.mid_x(), bottom.y)
+            path_points = self.v_elbow_for(top.mid_x(), top.b, bottom.mid_x(), bottom.y)
+
+        return Path(points=path_points, area1 = node.left_child, area2 = node.right_child)
 
     def v_elbow_for(self, tx, ty, bx, by):
         half_y = int((by - ty) / 2)
@@ -257,7 +267,7 @@ def main(h=40, w=100, min_w=15, min_h=12, min_scale=40, max_scale=70):
         node.area.render_to_canvas(canvas)))
 
     for path in PathBuilder(btree).perform():
-        points = map(lambda p: drawing.Point(p[0], p[1]), path)
+        points = map(lambda p: drawing.Point(p[0], p[1]), path.points)
         pixels = map(lambda p: drawing.Pixel(p, "*"), points)
         canvas.draw(pixels)
 
