@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/scrooloose/wang_matrix.exe.svg?branch=master)](https://travis-ci.org/scrooloose/wang_matrix.exe)
+
+
 Install
 -------
 
