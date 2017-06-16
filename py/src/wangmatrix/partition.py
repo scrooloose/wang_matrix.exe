@@ -1,5 +1,6 @@
 import random
-import drawing
+from . import drawing
+
 
 class BSPTree(object):
     def __init__(self, area, parent=None, left_child=None, right_child=None, cut=None):

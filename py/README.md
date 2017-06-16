@@ -12,3 +12,10 @@ virtualenv ~/.local/venvs/wangmatrix
 source ~/.local/venvs/wangmatrix/bin/activate
 wangmatrix.solve.py <(wangmatrix.generate.py 100 40 10)
 ```
+
+# Test
+
+```
+pip install --user tox
+tox
+```
