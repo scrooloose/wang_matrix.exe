@@ -69,7 +69,7 @@ class Area(object):
         new_h = Scaler(scalar=self.h, min_perc=min_percent, max_perc = max_percent, min_val = min_h).perform()
         new_x = ((self.x + self.x + self.w) / 2) - (new_w / 2)
         new_y = ((self.y + self.y + self.h) / 2) - (new_h / 2)
-        return Area(x = int(new_x), y = int(new_y), w = int(round(new_w)), h = int(round(new_h)))
+        return Area(x = int(new_x), y = int(new_y), w = round(new_w), h = round(new_h))
 
     def render_to_canvas(self, canvas, char="#"):
         s = drawing.Square(self.x, self.y, self.w, self.h)
