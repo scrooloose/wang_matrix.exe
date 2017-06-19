@@ -101,8 +101,8 @@ class Scaler(object):
         self.max_perc = max_perc
         self.min_val = min_val
 
-    def perform(self, scalar):
-        return random.randint(self._min_value(scalar), self._max_value(scalar))
+    def perform(self, scalar, randfunc=random.randint):
+        return randfunc(self._min_value(scalar), self._max_value(scalar))
 
     def _min_value(self, scalar):
         return max(self.min_val, int(scalar * (self.min_perc / 100)))
