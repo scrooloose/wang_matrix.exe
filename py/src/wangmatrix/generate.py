@@ -57,8 +57,7 @@ def random_maze(width, height, shape_count):
     canvas = Canvas(width, height, background="#")
     for i in range(shape_count):
         shape = random.choice(SHAPES)
-        o = shape(width, height)
-        canvas.draw(Pixel(p, " ") for p in o.outline())
+        shape(width, height).render(canvas)
 
     edges = list(
         (x, y) for x, y in

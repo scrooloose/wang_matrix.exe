@@ -22,8 +22,20 @@ class Pixel(object):
 def oa(h, r):
     return int(math.sin(r) * h), int(math.cos(r) * h)
 
+class Drawable(object):
 
-class Triangle(object):
+    def pixels(self, char):
+        return [Pixel(p, char) for p in self.points()]
+
+    def render(self, canvas, char="."):
+        canvas.draw(self.pixels(char=char))
+
+    #template method
+    def points(self):
+        pass
+
+
+class Triangle(Drawable):
     """
     SohCahToa
 
@@ -62,7 +74,7 @@ class Triangle(object):
         for y in range(min(self.y, self.y + a), max(self.y, self.y + a)):
             yield Point(self.x, y)
 
-    def outline(self):
+    def points(self):
         return itertools.chain(
             self.hypotenuse(),
             self.opposite(),
@@ -70,19 +82,19 @@ class Triangle(object):
         )
 
 
-class Vector(object):
+class Vector(Drawable):
     def __init__(self, x, y, length, angle):
         self.x = x
         self.y = y
         self.length = length
         self.angle = angle
 
-    def outline(self):
+    def points(self):
         v = Triangle(self.x, self.y, self.length, self.angle)
         return v.hypotenuse()
 
 
-class Square(object):
+class Square(Drawable):
     def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
@@ -95,7 +107,7 @@ class Square(object):
             y=self.y,
             length=self.width,
             angle=90
-        ).outline()
+        ).points()
 
     def right(self):
         return Vector(
@@ -103,7 +115,7 @@ class Square(object):
             y=self.y,
             length=self.height,
             angle=0
-        ).outline()
+        ).points()
 
     def bottom(self):
         return Vector(
@@ -111,7 +123,7 @@ class Square(object):
             y=self.y + self.height - 1,
             length=self.width,
             angle=90
-        ).outline()
+        ).points()
 
     def left(self):
         return Vector(
@@ -119,9 +131,9 @@ class Square(object):
             y=self.y,
             length=self.height,
             angle=0
-        ).outline()
+        ).points()
 
-    def outline(self):
+    def points(self):
         return itertools.chain(
             self.top(),
             self.right(),
@@ -140,13 +152,13 @@ def last(iterable):
         yield _last
 
 
-class Circle(object):
+class Circle(Drawable):
     def __init__(self, x, y, radius):
         self.x = x
         self.y = y
         self.radius = radius
 
-    def outline(self):
+    def points(self):
         return itertools.chain(*[
             last(
                 Vector(
@@ -154,7 +166,7 @@ class Circle(object):
                     y=self.y,
                     length=self.radius,
                     angle=i,
-                ).outline(),
+                ).points(),
             )
             for i in range(1, 360, 2)
         ])
