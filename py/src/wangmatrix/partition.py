@@ -64,9 +64,10 @@ class Area(object):
     def __repr__(self):
         return "Area[x:%d y:%d w:%d h:%d]" % (self.x, self.y, self.w, self.h)
 
-    def scale(self, min_percent=50, max_percent=70, min_h=4, min_w=5):
-        new_w = Scaler(scalar=self.w, min_perc=min_percent, max_perc = max_percent, min_val = min_w).perform()
-        new_h = Scaler(scalar=self.h, min_perc=min_percent, max_perc = max_percent, min_val = min_h).perform()
+    def scale(self, h_scaler=None, w_scaler=None):
+        new_w = w_scaler.perform(self.w)
+        new_h = h_scaler.perform(self.h)
+
         new_x = ((self.x + self.x + self.w) / 2) - (new_w / 2)
         new_y = ((self.y + self.y + self.h) / 2) - (new_h / 2)
         return Area(x = int(new_x), y = int(new_y), w = round(new_w), h = round(new_h))
@@ -95,20 +96,19 @@ class Area(object):
 
 
 class Scaler(object):
-    def __init__(self, scalar, min_perc, max_perc, min_val):
-        self.scalar = scalar
+    def __init__(self, min_perc=50, max_perc=80, min_val=5):
         self.min_perc = min_perc
         self.max_perc = max_perc
         self.min_val = min_val
 
-    def perform(self):
-        return random.randint(self._min_value(), self._max_value())
+    def perform(self, scalar):
+        return random.randint(self._min_value(scalar), self._max_value(scalar))
 
-    def _min_value(self):
-        return max(self.min_val, int(self.scalar * self.min_perc / 100))
+    def _min_value(self, scalar):
+        return max(self.min_val, int(scalar * (self.min_perc / 100)))
 
-    def _max_value(self):
-        return max(self.min_val, int(self.scalar * (self.max_perc / 100)))
+    def _max_value(self, scalar):
+        return max(self.min_val, int(scalar * (self.max_perc / 100)))
 
 class BSPPartitioner(object):
     CUT_HORIZONTAL="horizontal"
@@ -262,9 +262,12 @@ def main(h=40, w=100, min_w=15, min_h=12, min_scale=40, max_scale=70):
 
     btree = BSPPartitioner(min_h=min_h, min_w=min_w).perform(root_area)
 
+    h_scaler = Scaler(min_perc = min_scale, max_perc = max_scale, min_val = 4)
+    w_scaler = Scaler(min_perc = min_scale, max_perc = max_scale, min_val = 5)
+
     btree.each_leaf(lambda node: (
         # node.area.render_to_canvas(canvas, char="."),
-        node.set_area(node.area.scale(min_percent=min_scale, max_percent=max_scale)),
+        node.set_area(node.area.scale(h_scaler=h_scaler, w_scaler=w_scaler)),
         node.area.render_to_canvas(canvas)))
 
     for path in PathBuilder(btree).perform():
