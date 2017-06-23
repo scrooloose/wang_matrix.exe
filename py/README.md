@@ -16,6 +16,6 @@ wangmatrix.solve.py <(wangmatrix.generate.py 100 40 10)
 # Test
 
 ```
-pip install --user tox
-tox
+make install
+make test
 ```

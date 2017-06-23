@@ -8,8 +8,7 @@ cache:
   - apt
 
 install:
-  - pip install --user tox
-  - bundle install
+  - make install
 
 script:
   - make test

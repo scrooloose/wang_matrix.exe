@@ -20,3 +20,12 @@ Maze Generator
 -----------------
 
 There's a [Maze generator written in Python](py/README.md).
+
+
+Test
+----
+
+```
+make install
+make test
+```
