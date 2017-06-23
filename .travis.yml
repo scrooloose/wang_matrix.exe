@@ -1,5 +1,27 @@
 sudo: false
+
 dist: trusty
-language: ruby
-rvm:
- - 2.3
+
+cache:
+  - bundler
+  - pip
+  - apt
+
+install:
+  - pip install --user tox
+  - bundle install
+
+script:
+  - make test
+
+addons:
+  apt:
+    packages:
+    - python
+    - python3-pip
+
+# Only run tests on push on a few branches.
+# Test on PR should be execute for all branches and forks.
+branches:
+  only:
+  - master
