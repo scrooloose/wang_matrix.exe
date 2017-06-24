@@ -1,0 +1,11 @@
+desc "Install Python dependencies"
+task :install do
+  sh %{pip install --user tox}
+end
+
+desc "Python Tests"
+task :test => :install do
+  Dir.chdir(__dir__){
+    sh %{tox}
+  }
+end

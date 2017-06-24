@@ -8,10 +8,10 @@ cache:
   - apt
 
 install:
-  - make install
+  - rake install
 
 script:
-  - make test
+  - rake test
 
 addons:
   apt:
