@@ -12,12 +12,20 @@ module WangMatrix
       @visible = visible
     end
 
-    def self.space(pos:, **args)
-      new({pos: pos, transparent: true, traversable: true, char: " "}.merge(args))
+    def self.empty(pos:, **args)
+      new({pos: pos, transparent: true, traversable: false, char: " "}.merge(args))
     end
 
     def self.wall(pos:, **args)
       new({pos: pos, transparent: false, traversable: false, char: "#"}.merge(args))
+    end
+
+    def self.floor(pos:, **args)
+      new({pos: pos, transparent: true, traversable: true, char: "."}.merge(args))
+    end
+
+    def self.path(pos:, **args)
+      new({pos: pos, transparent: true, traversable: true, char: "*"}.merge(args))
     end
 
     def self.start(pos:, **args)
