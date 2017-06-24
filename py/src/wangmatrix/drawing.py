@@ -141,6 +141,19 @@ class Square(Drawable):
             self.left(),
         )
 
+class FilledSquare(Square):
+    def render(self, canvas, char, fill_char):
+        super(FilledSquare, self).render(canvas, char)
+        pixels = map(lambda p: Pixel(p, fill_char), self._internal_points())
+        canvas.draw(pixels)
+
+    def _internal_points(self):
+        coords = itertools.product(
+            range(self.x + 1, self.x + self.width - 1),
+            range(self.y + 1, self.y + self.height - 1)
+        )
+
+        return list(map(lambda p: Point(*p), coords))
 
 def last(iterable):
     _sentinel = object()
