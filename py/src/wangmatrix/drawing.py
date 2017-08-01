@@ -2,6 +2,8 @@ import itertools
 import math
 from collections import namedtuple
 
+from zope.interface import Interface, implementer
+
 Point = namedtuple("Point", "x y")
 
 
@@ -22,8 +24,15 @@ class Pixel(object):
 def oa(h, r):
     return int(math.sin(r) * h), int(math.cos(r) * h)
 
-class Drawable(object):
 
+class IShape(Interface):
+    def outline():
+        """
+        The `Point`s for the shape outline.
+        """
+
+
+class Drawable(object):
     def pixels(self, char):
         return [Pixel(p, char) for p in self.points()]
 
@@ -35,6 +44,7 @@ class Drawable(object):
         pass
 
 
+@implementer(IShape)
 class Triangle(Drawable):
     """
     SohCahToa
@@ -52,6 +62,7 @@ class Triangle(Drawable):
     cos(r) = a / h
     a = cos(r) * h
     """
+
     def __init__(self, x, y, length, angle, rotation=0):
         self.x = x
         self.y = y
@@ -74,7 +85,7 @@ class Triangle(Drawable):
         for y in range(min(self.y, self.y + a), max(self.y, self.y + a)):
             yield Point(self.x, y)
 
-    def points(self):
+    def outline(self):
         return itertools.chain(
             self.hypotenuse(),
             self.opposite(),
@@ -82,6 +93,7 @@ class Triangle(Drawable):
         )
 
 
+@implementer(IShape)
 class Vector(Drawable):
     def __init__(self, x, y, length, angle):
         self.x = x
@@ -89,11 +101,12 @@ class Vector(Drawable):
         self.length = length
         self.angle = angle
 
-    def points(self):
+    def outline(self):
         v = Triangle(self.x, self.y, self.length, self.angle)
         return v.hypotenuse()
 
 
+@implementer(IShape)
 class Square(Drawable):
     def __init__(self, x, y, width, height):
         self.x = x
@@ -102,38 +115,22 @@ class Square(Drawable):
         self.height = height
 
     def top(self):
-        return Vector(
-            x=self.x,
-            y=self.y,
-            length=self.width,
-            angle=90
-        ).points()
+        return Vector(x=self.x, y=self.y, length=self.width, angle=90).outline()
 
     def right(self):
         return Vector(
-            x=self.x + self.width-1,
-            y=self.y,
-            length=self.height,
-            angle=0
-        ).points()
+            x=self.x + self.width - 1, y=self.y, length=self.height, angle=0
+        ).outline()
 
     def bottom(self):
         return Vector(
-            x=self.x,
-            y=self.y + self.height - 1,
-            length=self.width,
-            angle=90
-        ).points()
+            x=self.x, y=self.y + self.height - 1, length=self.width, angle=90
+        ).outline()
 
     def left(self):
-        return Vector(
-            x=self.x,
-            y=self.y,
-            length=self.height,
-            angle=0
-        ).points()
+        return Vector(x=self.x, y=self.y, length=self.height, angle=0).outline()
 
-    def points(self):
+    def outline(self):
         return itertools.chain(
             self.top(),
             self.right(),
@@ -152,24 +149,26 @@ def last(iterable):
         yield _last
 
 
+@implementer(IShape)
 class Circle(Drawable):
     def __init__(self, x, y, radius):
         self.x = x
         self.y = y
         self.radius = radius
 
-    def points(self):
-        return itertools.chain(*[
-            last(
-                Vector(
-                    x=self.x,
-                    y=self.y,
-                    length=self.radius,
-                    angle=i,
-                ).points(),
-            )
-            for i in range(1, 360, 2)
-        ])
+    def outline(self):
+        return itertools.chain(
+            * [
+                last(
+                    Vector(
+                        x=self.x,
+                        y=self.y,
+                        length=self.radius,
+                        angle=i,
+                    ).points(),
+                ) for i in range(1, 360, 2)
+            ]
+        )
 
 
 class Canvas(object):
@@ -204,20 +203,10 @@ def decorate(canvas):
     gutter_width = len(str(canvas.height))
     header = " " * gutter_width + " " + "".join(ticks(width, 5))
     return "\n".join(
-        [header] +
-        list(
-            str(row_number if row_number % 5 == 0 else "").rjust(
-                gutter_width
-            ) +
-            " " +
-            "".join(
-                value for value in row
-            ) +
-            " " +
-            str(row_number if row_number % 5 == 0 else "").rjust(
-                gutter_width
-            )
+        [header] + list(
+            str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
+            + " " + "".join(value for value in row) + " " +
+            str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
             for row_number, row in enumerate(canvas.grid, 1)
-        ) +
-        [header]
+        ) + [header]
     )

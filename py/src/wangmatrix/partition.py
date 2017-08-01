@@ -74,7 +74,7 @@ class Area(object):
 
     def render_to_canvas(self, canvas, char="#"):
         s = drawing.Square(self.x, self.y, self.w, self.h)
-        canvas.draw(drawing.Pixel(p, char) for p in s.points())
+        canvas.draw(drawing.Pixel(p, char) for p in s.outline())
 
     def mid_y(self):
         return int(self.y + self.h/2)
