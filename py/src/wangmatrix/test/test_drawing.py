@@ -4,7 +4,13 @@ from unittest import TestCase
 from hypothesis import given, strategies as st
 from zope.interface.verify import verifyObject
 
-from wangmatrix.drawing import IShape, Circle, Square, Triangle, Vector
+from wangmatrix.drawing import IShape, Circle, Square, Triangle, Vector, Canvas, Pixel, decorate
+
+
+def print_shape(shape):
+    c = Canvas(20, 20, background=" ")
+    c.draw(Pixel(p, ".") for p in shape.outline())
+    return "\n" + decorate(c)
 
 
 class IShapeTestsMixin(object):
@@ -19,8 +25,8 @@ class IShapeTestsMixin(object):
         o = self.shape(x=x, y=y)
         min_x = min(p.x for p in o.outline())
         min_y = min(p.y for p in o.outline())
-        self.assertEqual(x, min_x, o)
-        self.assertEqual(y, min_y, o)
+        self.assertEqual(x, min_x, print_shape(o))
+        self.assertEqual(y, min_y, print_shape(o))
 
 
 def make_ishape_tests(shape_factory):

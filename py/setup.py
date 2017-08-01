@@ -10,8 +10,9 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     install_requires=[
-        "attr",
+        "attrs",
         "zope.interface",
+        "hypothesis",
     ],
     extras_require={
         "dev": [

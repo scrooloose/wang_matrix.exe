@@ -209,12 +209,17 @@ def ticks(width, every):
 def decorate(canvas):
     width = canvas.width
     gutter_width = len(str(canvas.height))
+    horizontal_border = " " * gutter_width + " " +  "-"*width
     header = " " * gutter_width + " " + "".join(ticks(width, 5))
     return "\n".join(
-        [header] + list(
+        [header] +
+        [horizontal_border] +
+        list(
             str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
-            + " " + "".join(value for value in row) + " " +
+            + "|" + "".join(value for value in row) + "|" +
             str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
             for row_number, row in enumerate(canvas.grid, 1)
-        ) + [header]
+        ) +
+        [horizontal_border] +
+        [header]
     )
