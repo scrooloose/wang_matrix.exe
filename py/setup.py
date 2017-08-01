@@ -10,6 +10,7 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     install_requires=[
+        "attr",
         "zope.interface",
     ],
     extras_require={

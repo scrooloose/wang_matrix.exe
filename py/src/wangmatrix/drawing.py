@@ -2,6 +2,7 @@ import itertools
 import math
 from collections import namedtuple
 
+import attr
 from zope.interface import Interface, implementer
 
 Point = namedtuple("Point", "x y")
@@ -45,6 +46,7 @@ class Drawable(object):
 
 
 @implementer(IShape)
+@attr.s
 class Triangle(Drawable):
     """
     SohCahToa
@@ -62,13 +64,15 @@ class Triangle(Drawable):
     cos(r) = a / h
     a = cos(r) * h
     """
+    x = attr.ib()
+    y = attr.ib()
+    length = attr.ib()
+    angle = attr.ib()
+    rotation = attr.ib(default=0)
 
-    def __init__(self, x, y, length, angle, rotation=0):
-        self.x = x
-        self.y = y
-        self.length = length
-        self.radians = math.radians(angle)
-        self.rotation = rotation
+    @property
+    def radians(self):
+        return math.radians(self.angle)
 
     def hypotenuse(self):
         for h in range(self.length):
@@ -94,12 +98,12 @@ class Triangle(Drawable):
 
 
 @implementer(IShape)
+@attr.s
 class Vector(Drawable):
-    def __init__(self, x, y, length, angle):
-        self.x = x
-        self.y = y
-        self.length = length
-        self.angle = angle
+    x = attr.ib()
+    y = attr.ib()
+    length = attr.ib()
+    angle = attr.ib()
 
     def outline(self):
         v = Triangle(self.x, self.y, self.length, self.angle)
@@ -107,15 +111,17 @@ class Vector(Drawable):
 
 
 @implementer(IShape)
+@attr.s
 class Square(Drawable):
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+    x = attr.ib()
+    y = attr.ib()
+    width = attr.ib()
+    height = attr.ib()
 
     def top(self):
-        return Vector(x=self.x, y=self.y, length=self.width, angle=90).outline()
+        return Vector(
+            x=self.x, y=self.y, length=self.width, angle=90
+        ).outline()
 
     def right(self):
         return Vector(
@@ -128,7 +134,9 @@ class Square(Drawable):
         ).outline()
 
     def left(self):
-        return Vector(x=self.x, y=self.y, length=self.height, angle=0).outline()
+        return Vector(
+            x=self.x, y=self.y, length=self.height, angle=0
+        ).outline()
 
     def outline(self):
         return itertools.chain(
@@ -150,22 +158,22 @@ def last(iterable):
 
 
 @implementer(IShape)
+@attr.s
 class Circle(Drawable):
-    def __init__(self, x, y, radius):
-        self.x = x
-        self.y = y
-        self.radius = radius
+    x = attr.ib()
+    y = attr.ib()
+    radius = attr.ib()
 
     def outline(self):
         return itertools.chain(
             * [
                 last(
                     Vector(
-                        x=self.x,
-                        y=self.y,
+                        x=self.x + self.radius,
+                        y=self.y + self.radius,
                         length=self.radius,
                         angle=i,
-                    ).points(),
+                    ).outline(),
                 ) for i in range(1, 360, 2)
             ]
         )
