@@ -33,21 +33,9 @@ class IShape(Interface):
         """
 
 
-class Drawable(object):
-    def pixels(self, char):
-        return [Pixel(p, char) for p in self.points()]
-
-    def render(self, canvas, char="."):
-        canvas.draw(self.pixels(char=char))
-
-    #template method
-    def points(self):
-        pass
-
-
 @implementer(IShape)
 @attr.s
-class Triangle(Drawable):
+class Triangle(object):
     """
     SohCahToa
 
@@ -99,7 +87,7 @@ class Triangle(Drawable):
 
 @implementer(IShape)
 @attr.s
-class Vector(Drawable):
+class Vector(object):
     x = attr.ib()
     y = attr.ib()
     length = attr.ib()
@@ -112,7 +100,7 @@ class Vector(Drawable):
 
 @implementer(IShape)
 @attr.s
-class Square(Drawable):
+class Square(object):
     x = attr.ib()
     y = attr.ib()
     width = attr.ib()
@@ -159,7 +147,7 @@ def last(iterable):
 
 @implementer(IShape)
 @attr.s
-class Circle(Drawable):
+class Circle(object):
     x = attr.ib()
     y = attr.ib()
     radius = attr.ib()
@@ -167,14 +155,12 @@ class Circle(Drawable):
     def outline(self):
         return itertools.chain(
             * [
-                last(
-                    Vector(
-                        x=self.x + self.radius,
-                        y=self.y + self.radius,
-                        length=self.radius,
-                        angle=i,
-                    ).outline(),
-                ) for i in range(1, 360, 2)
+                Vector(
+                    x=self.x + self.radius - 1,
+                    y=self.y + self.radius - 1,
+                    length=self.radius,
+                    angle=i,
+                ).outline() for i in range(0, 360, 2)
             ]
         )
 
@@ -198,9 +184,10 @@ class Canvas(object):
 
 
 def ticks(width, every):
+    yield "0"
     for c in " " * (every - 1):
         yield c
-    for i in (i for i in range(1, width) if (i % every) == 0):
+    for i in range(every, width, every):
         buffer = str(i).ljust(every)
         for c in buffer:
             yield c
@@ -209,17 +196,11 @@ def ticks(width, every):
 def decorate(canvas):
     width = canvas.width
     gutter_width = len(str(canvas.height))
-    horizontal_border = " " * gutter_width + " " +  "-"*width
+    horizontal_border = " " * gutter_width + " " + "-" * width
     header = " " * gutter_width + " " + "".join(ticks(width, 5))
-    return "\n".join(
-        [header] +
-        [horizontal_border] +
-        list(
-            str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
-            + "|" + "".join(value for value in row) + "|" +
-            str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
-            for row_number, row in enumerate(canvas.grid, 1)
-        ) +
-        [horizontal_border] +
-        [header]
-    )
+    return "\n".join([header] + [horizontal_border] + list(
+        str(row_number if row_number % 5 == 0 else "").rjust(gutter_width) +
+        "|" + "".join(value for value in row) + "|" +
+        str(row_number if row_number % 5 == 0 else "").rjust(gutter_width)
+        for row_number, row in enumerate(canvas.grid, 0)
+    ) + [horizontal_border] + [header])

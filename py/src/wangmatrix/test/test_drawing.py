@@ -1,10 +1,51 @@
-from functools import partial
 from unittest import TestCase
 
 from hypothesis import given, strategies as st
 from zope.interface.verify import verifyObject
 
-from wangmatrix.drawing import IShape, Circle, Square, Triangle, Vector, Canvas, Pixel, decorate
+from wangmatrix.drawing import (
+    IShape, Circle, Square, Triangle, Vector, Canvas, Pixel, decorate
+)
+
+
+def triangles():
+    return st.builds(
+        Triangle,
+        x=st.integers(0, 100),
+        y=st.integers(0, 100),
+        length=st.integers(1, 100),
+        angle=st.integers(),
+        rotation=st.integers(),
+    )
+
+
+def vectors():
+    return st.builds(
+        Vector,
+        x=st.integers(0, 100),
+        y=st.integers(0, 100),
+        length=st.integers(1, 100),
+        angle=st.integers(),
+    )
+
+
+def squares():
+    return st.builds(
+        Square,
+        x=st.integers(0, 100),
+        y=st.integers(0, 100),
+        width=st.integers(1, 100),
+        height=st.integers(1, 100),
+    )
+
+
+def circles():
+    return st.builds(
+        Circle,
+        x=st.integers(0, 100),
+        y=st.integers(0, 100),
+        radius=st.integers(1, 100),
+    )
 
 
 def print_shape(shape):
@@ -13,47 +54,36 @@ def print_shape(shape):
     return "\n" + decorate(c)
 
 
-class IShapeTestsMixin(object):
-    def test_interface(self):
-        self.assertTrue(verifyObject(IShape, self.shape()))
+def make_ishape_tests(shape_strategy):
+    class Tests(TestCase):
+        @given(shape_strategy)
+        def test_interface(self, shape):
+            self.assertTrue(verifyObject(IShape, shape))
 
-    @given(x=st.integers(), y=st.integers())
-    def test_origin(self, x, y):
-        """
-        The outline of the shape touches the origin.
-        """
-        o = self.shape(x=x, y=y)
-        min_x = min(p.x for p in o.outline())
-        min_y = min(p.y for p in o.outline())
-        self.assertEqual(x, min_x, print_shape(o))
-        self.assertEqual(y, min_y, print_shape(o))
-
-
-def make_ishape_tests(shape_factory):
-    class Tests(IShapeTestsMixin, TestCase):
-        def setUp(self):
-            self.shape = shape_factory
+        @given(shape_strategy)
+        def test_origin(self, shape):
+            """
+            The outline of the shape touches the origin.
+            """
+            min_x = min(p.x for p in shape.outline())
+            min_y = min(p.y for p in shape.outline())
+            self.assertEqual(shape.x, min_x, print_shape(shape))
+            self.assertEqual(shape.y, min_y, print_shape(shape))
 
     return Tests
 
 
-class CircleTests(make_ishape_tests(partial(Circle, x=0, y=0, radius=10))):
+class CircleTests(make_ishape_tests(circles())):
     pass
 
 
-class SquareTests(
-    make_ishape_tests(partial(Square, x=0, y=0, width=10, height=10))
-):
+class SquareTests(make_ishape_tests(squares())):
     pass
 
 
-class TriangleTests(
-    make_ishape_tests(partial(Triangle, x=0, y=0, length=10, angle=0))
-):
+class TriangleTests(make_ishape_tests(triangles())):
     pass
 
 
-class VectorTests(
-    make_ishape_tests(partial(Vector, x=0, y=0, length=10, angle=0))
-):
+class VectorTests(make_ishape_tests(vectors())):
     pass
