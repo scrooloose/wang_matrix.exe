@@ -33,7 +33,7 @@ module WangMatrix
       it "returns a copy" do
         expect {
           clone = subject.clone
-          clone.set(Tile.space(pos: Pos.new(2,2)))
+          clone.set(Tile.empty(pos: Pos.new(2,2)))
         }.not_to change { subject.atxy(2,2) }
       end
     end

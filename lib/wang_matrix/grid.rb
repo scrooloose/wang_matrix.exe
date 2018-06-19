@@ -5,12 +5,12 @@ module WangMatrix
       @grid = (0..(height-1)).map { Array.new(width) }
       @width = width
       @height = height
-      init_with_spaces
+      init_with_empty_tiles
     end
 
     def self.new_from_array(array)
-      height = array.max {|obj| obj.pos.y}.pos.y+1
-      width = array.max {|obj| obj.pos.x}.pos.x+1
+      height = array.max {|obj1, obj2| obj1.pos.y <=> obj2.pos.y}.pos.y+1
+      width = array.max {|obj1, obj2| obj1.pos.x <=> obj2.pos.x}.pos.x+1
       grid = new(width: width, height: height)
 
       array.each {|obj| grid.set(obj)}
@@ -68,10 +68,10 @@ module WangMatrix
     private
       attr_reader :grid
 
-      def init_with_spaces
+      def init_with_empty_tiles
         grid.each_with_index do |line, y|
           line.each_with_index do |tile, x|
-            set(Tile.space(pos: Pos.new(x, y)))
+            set(Tile.empty(pos: Pos.new(x, y)))
           end
         end
         self

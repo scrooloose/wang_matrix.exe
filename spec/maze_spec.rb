@@ -2,6 +2,7 @@ module WangMatrix
   RSpec.describe Maze do
     let(:grid) do
       Grid.new(width: 2, height: 2).tap do |g|
+        g.set(Tile.floor(pos: Pos.new(0,0)))
         g.set(Tile.wall(pos: Pos.new(1,1)))
       end
     end
@@ -48,6 +49,7 @@ module WangMatrix
           g.set(Tile.wall(pos: Pos.new(2, 0)))
 
           g.set(Tile.wall(pos: Pos.new(0, 1)))
+          g.set(Tile.floor(pos: Pos.new(1, 1)))
           g.set(Tile.wall(pos: Pos.new(2, 1)))
 
           g.set(Tile.wall(pos: Pos.new(0, 2)))
