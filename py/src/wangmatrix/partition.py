@@ -72,9 +72,8 @@ class Area(object):
         new_y = ((self.y + self.y + self.h) / 2) - (new_h / 2)
         return Area(x = int(new_x), y = int(new_y), w = round(new_w), h = round(new_h))
 
-    def render_to_canvas(self, canvas, char="#"):
-        s = drawing.Square(self.x, self.y, self.w, self.h)
-        canvas.draw(drawing.Pixel(p, char) for p in s.points())
+    def render_to_canvas(self, canvas, char="#", fill_char="."):
+        drawing.FilledSquare(self.x, self.y, self.w, self.h).render(canvas, char=char, fill_char = fill_char)
 
     def mid_y(self):
         return int(self.y + self.h/2)
@@ -164,6 +163,11 @@ class Path:
         self.area1 = area1
         self.area2 = area2
         self.points = points
+
+    def render_to_canvas(self, canvas, char="*"):
+        points = map(lambda p: drawing.Point(p[0], p[1]), self.points)
+        pixels = map(lambda p: drawing.Pixel(p, char), points)
+        canvas.draw(pixels)
 
 class PathBuilder:
     def __init__(self, btree):
@@ -266,14 +270,12 @@ def main(h=40, w=100, min_w=15, min_h=12, min_scale=40, max_scale=70):
     w_scaler = Scaler(min_perc = min_scale, max_perc = max_scale, min_val = 5)
 
     btree.each_leaf(lambda node: (
-        # node.area.render_to_canvas(canvas, char="."),
+        # node.area.render_to_canvas(canvas, char="`", fill_char=" "),
         node.set_area(node.area.scale(h_scaler=h_scaler, w_scaler=w_scaler)),
-        node.area.render_to_canvas(canvas)))
+        node.area.render_to_canvas(canvas, fill_char=".")))
 
     for path in PathBuilder(btree).perform():
-        points = map(lambda p: drawing.Point(p[0], p[1]), path.points)
-        pixels = map(lambda p: drawing.Pixel(p, "*"), points)
-        canvas.draw(pixels)
+        path.render_to_canvas(canvas, char="*")
 
 
     print(str(drawing.decorate(canvas)))
