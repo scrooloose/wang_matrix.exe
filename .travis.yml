@@ -2,16 +2,18 @@ sudo: false
 
 dist: trusty
 
+language: ruby
+
 cache:
   - bundler
   - pip
   - apt
 
 install:
-  - make install
+  - rake install
 
 script:
-  - make test
+  - rake test
 
 addons:
   apt:
